@@ -48,9 +48,9 @@ class GenericDataScrapper(ABC):
         content = self.__load_page(block_number, ScrappedData.block_date)
         regex = RegexPatternMatching()
         date_string = regex.find_pattern_match(self.block_date_regex_pattern, content, str(ScrappedData.block_date.value))
-        block_date = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
-        if (block_date == None):
+        if (date_string == None):
             raise Exception("Block date not found in " + str(self._get_initial_url(block_number)) + " with content:\n" + content)
+        block_date = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
         return block_date
 
     def __load_page(self, block_number, page_required):
