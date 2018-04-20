@@ -1,22 +1,22 @@
 import datetime
 from time import sleep
 
-from src.currencies.currencies import Currencies
 from src.data_scrapper.blockchain_explorer.blockchain_data_scrapper_factory import BlockChainDataScrapperFactory
 from src.data_scrapper.exchange_rate.exchange_rate_data_scrapper_factory import \
     ExchangeRateDataScrapperFactory
 from src.database_accessor.database_accessor import DatabaseAccessor
-
+from src.historical_data_fetcher.historical_data.currency_historical_data_revenue_calculator import HistoricalDataRevenueCalculator
 from src.printing.colors import Colors
 
 
-class CurrencyDatabaseFilling:
+class CurrencyHistoricalDataDatabaseFilling:
     def __init__(self):
         self.db = DatabaseAccessor()
 
     def fill_in_database_for_currency(self, currency, time_delta=datetime.timedelta(hours=1), sleep_time_blockchain=1, sleep_time_exchange_rate=1, block_number=1):
         self.__fill_in_blockchain_data(currency, time_delta, sleep_time_blockchain, block_number)
         self.__fill_in_exchange_rate_data(currency, time_delta)
+        self.__fill_in_revenue_data(currency)
 
     def __fill_in_blockchain_data(self, currency, time_delta, sleep_time_blockchain, block_number):
         data_scrapper = BlockChainDataScrapperFactory.getDataScrapper(currency)
@@ -36,7 +36,7 @@ class CurrencyDatabaseFilling:
             if(datetime_difference == -1):
                 print("Date of current block (" + str(current_date_time) + ") is too small compared to the last one (" + str(datetime_lower_limit) + ") and the delta(" + str(time_delta) + ")")
                 highest_block_under_datetime_range = block_number if block_number > highest_block_under_datetime_range else highest_block_under_datetime_range
-                block_number_incrementation = int(1.5 * block_number_incrementation + 1) # worked with 2 before
+                block_number_incrementation = int(2 * block_number_incrementation + 1) # worked with 2 before
             elif(datetime_difference == 1):
                 print("Date of current block (" + str(current_date_time) + ") is too big compared to the last one (" + str(datetime_lower_limit) + ") and the delta (" + str(time_delta) + ")")
                 block_number -= block_number_incrementation
@@ -69,6 +69,15 @@ class CurrencyDatabaseFilling:
                 close_value = closes_exchange_rates[i][0]
                 self.db.upsert_currency_exchange_rate_historical_data(currency, close_value, self.__truncated_datetime_limit(time_delta, current_date_time), datetime_lower_limit, datetime_lower_limit + time_delta)
                 datetime_lower_limit += time_delta
+
+    def __fill_in_revenue_data(self, currency):
+        revenue_calculator = HistoricalDataRevenueCalculator()
+        revenues_and_datetime = revenue_calculator.get_currency_historic_revenue(currency)
+        for row in revenues_and_datetime:
+            revenue = row[0]
+            date_time = row[1]
+            self.db.update_revenue_historical_data_currrencies(currency, revenue, date_time)
+
 
     def __check_time_limit_frame(self, current_date_time, time_limit, time_delta):
         if(time_limit > current_date_time):

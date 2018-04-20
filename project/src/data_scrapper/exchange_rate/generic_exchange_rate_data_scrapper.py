@@ -29,7 +29,7 @@ class GenericExchangeRateDataScrapper(ABC):
             print("Closes were not found in " + str(self._get_url(start_date, end_date)) + " with content:\n" + content)
             return None
         for close in closes:
-            close[0] = 1.0 / float(close[0])
+            close[0] = float(close[0])
             close[1] = datetime.strptime(close[1], "%b %d, %Y")
         closes.reverse()
         return closes
