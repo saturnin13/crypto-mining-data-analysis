@@ -4,6 +4,6 @@ url = 'https://rest.coinapi.io/v1/ohlcv/COINEXCHANGE_SPOT_GRS_BTC/latest?period_
 # url = 'https://rest.coinapi.io/v1/symbols'
 headers = {'X-CoinAPI-Key' : '8F93C8B9-7F38-49D5-AF0A-CA52A1718DC0'}
 response = requests.get(url, headers=headers)
-print(response)
-print(response.content)
-print(response.text)
+# print(response)
+# print(response.content)
+# print(response.text)

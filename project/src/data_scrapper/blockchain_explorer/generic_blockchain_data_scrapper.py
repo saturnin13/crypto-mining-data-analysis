@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 
-from src.data_scrapper.blockchain_explorer.scrapped_data import ScrappedData
+from src.data_scrapper.blockchain_explorer.blockchain_scrapped_data import BlockchainScrappedData
 from src.http_request.http_request_handling import HttpRequestHandling
 from src.regex.regex_pattern_matching import RegexPatternMatching
 from datetime import datetime
 
 
-class GenericDataScrapper(ABC):
+class GenericBlockchainDataScrapper(ABC):
 
     @property
     @abstractmethod
@@ -27,29 +27,30 @@ class GenericDataScrapper(ABC):
         super().__init__()
         self.block_number = -1
         self.current_content = ""
+        self.regex = RegexPatternMatching()
 
     def get_block_reward(self, block_number):
-        content = self.__load_page(block_number, ScrappedData.block_reward)
-        regex = RegexPatternMatching()
-        reward = regex.find_pattern_match(self.block_reward_regex_pattern, content, str(ScrappedData.block_reward.value))
+        content = self.__load_page(block_number, BlockchainScrappedData.block_reward)
+        reward = self.regex.find_pattern_match(self.block_reward_regex_pattern, content, str(BlockchainScrappedData.block_reward.value))
         if(reward == None):
-            raise Exception("Block reward not found in " + str(self._get_initial_url(block_number)) + " with content:\n" + content)
+            print("Block reward not found in " + str(self._get_url(block_number)) + " with content:\n" + content)
+            return None
         return reward
 
     def get_block_difficulty(self, block_number):
-        content = self.__load_page(block_number, ScrappedData.block_difficulty)
-        regex = RegexPatternMatching()
-        difficulty = regex.find_pattern_match(self.block_difficulty_regex_pattern, content, str(ScrappedData.block_difficulty.value))
+        content = self.__load_page(block_number, BlockchainScrappedData.block_difficulty)
+        difficulty = self.regex.find_pattern_match(self.block_difficulty_regex_pattern, content, str(BlockchainScrappedData.block_difficulty.value))
         if (difficulty == None):
-            raise Exception("Block difficulty not found in " + str(self._get_initial_url(block_number)) + " with content:\n" + content)
+            print("Block difficulty not found in " + str(self._get_url(block_number)) + " with content:\n" + content)
+            return None
         return difficulty
 
     def get_block_date(self, block_number):
-        content = self.__load_page(block_number, ScrappedData.block_date)
-        regex = RegexPatternMatching()
-        date_string = regex.find_pattern_match(self.block_date_regex_pattern, content, str(ScrappedData.block_date.value))
+        content = self.__load_page(block_number, BlockchainScrappedData.block_date)
+        date_string = self.regex.find_pattern_match(self.block_date_regex_pattern, content, str(BlockchainScrappedData.block_date.value))
         if (date_string == None):
-            raise Exception("Block date not found in " + str(self._get_initial_url(block_number)) + " with content:\n" + content)
+            print("Block date not found in " + str(self._get_url(block_number)) + " with content:\n" + content)
+            return None
         block_date = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
         return block_date
 
@@ -58,7 +59,7 @@ class GenericDataScrapper(ABC):
 
         if(block_number != self.block_number):
             self.block_number = block_number
-            self.current_content = http.get_request(self._get_initial_url(block_number))
+            self.current_content = http.get_request(self._get_url(block_number))
 
         secondary_url = self._get_secondary_url(block_number, self.current_content, page_required)
         if(secondary_url is not None):
@@ -67,7 +68,7 @@ class GenericDataScrapper(ABC):
         return self.current_content
 
     @abstractmethod
-    def _get_initial_url(self, block_number):
+    def _get_url(self, block_number):
         pass
 
     def _get_secondary_url(self, block_number, primary_content, data_required):
