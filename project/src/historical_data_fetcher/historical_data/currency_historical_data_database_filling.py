@@ -15,8 +15,8 @@ class CurrencyHistoricalDataDatabaseFilling:
 
     def fill_in_database_for_currency(self, currency, time_delta=datetime.timedelta(hours=1), sleep_time_blockchain=1, sleep_time_exchange_rate=1, block_number=1):
         self.__fill_in_blockchain_data(currency, time_delta, sleep_time_blockchain, block_number)
-        self.__fill_in_exchange_rate_data(currency, time_delta)
-        self.__fill_in_revenue_data(currency)
+        # self.__fill_in_exchange_rate_data(currency, time_delta)
+        # self.__fill_in_revenue_data(currency)
 
     def __fill_in_blockchain_data(self, currency, time_delta, sleep_time_blockchain, block_number):
         data_scrapper = BlockChainDataScrapperFactory.getDataScrapper(currency)

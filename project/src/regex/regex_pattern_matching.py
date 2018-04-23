@@ -14,8 +14,8 @@ class RegexPatternMatching:
         result = []
         for index, match in enumerate(iterator):
             if(index == match_number):
-                 result = self.__get_all_group_name(match, group_names)
-                 break
+                result = self.__get_all_group_name(match, group_names)
+                break
             elif(match_number == -1):
                 result.append(self.__get_all_group_name(match, group_names))
         if(not result):
