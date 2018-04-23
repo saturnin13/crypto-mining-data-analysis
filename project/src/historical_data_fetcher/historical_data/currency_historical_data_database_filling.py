@@ -15,8 +15,8 @@ class CurrencyHistoricalDataDatabaseFilling:
 
     def fill_in_database_for_currency(self, currency, time_delta=datetime.timedelta(hours=1), sleep_time_blockchain=1, sleep_time_exchange_rate=1, block_number=1):
         self.__fill_in_blockchain_data(currency, time_delta, sleep_time_blockchain, block_number)
-        # self.__fill_in_exchange_rate_data(currency, time_delta)
-        # self.__fill_in_revenue_data(currency)
+        self.__fill_in_exchange_rate_data(currency, time_delta)
+        self.__fill_in_revenue_data(currency)
 
     def __fill_in_blockchain_data(self, currency, time_delta, sleep_time_blockchain, block_number):
         data_scrapper = BlockChainDataScrapperFactory.getDataScrapper(currency)
@@ -27,7 +27,7 @@ class CurrencyHistoricalDataDatabaseFilling:
         datetime_lower_limit = self.__truncated_datetime_limit(time_delta, current_date_time)
 
         while(True):
-            print("\nblock: " + str(block_number) + " for currency: " + str(currency))
+            print("\nBlock: " + str(block_number) + " for currency: " + str(currency))
             data = data_scrapper.get_data({"block_number": [block_number]})
             if(not data):
                 break
@@ -42,10 +42,10 @@ class CurrencyHistoricalDataDatabaseFilling:
             elif(datetime_difference == 1):
                 print("Date of current block (" + str(current_date_time) + ") is too big compared to the last one (" + str(datetime_lower_limit) + ") and the delta (" + str(time_delta) + ")")
                 block_number -= block_number_incrementation
-                block_number_incrementation = max(int(0.9 * block_number_incrementation), 1)
+                block_number_incrementation = max(int(0.8 * block_number_incrementation), 1)
             else:
                 print(Colors.WARNING + "Processing block " + str(block_number) + ", retrieving the data" + Colors.ENDC)
-                current_reward = data[0]["block_reward"]
+                current_reward = data[0]["reward"]
                 current_difficulty = data[0]["difficulty"]
                 self.db.upsert_currency_blockchain_historical_data(currency, current_reward, current_difficulty, block_number,
                                                               self.__truncated_datetime_limit(time_delta, current_date_time),

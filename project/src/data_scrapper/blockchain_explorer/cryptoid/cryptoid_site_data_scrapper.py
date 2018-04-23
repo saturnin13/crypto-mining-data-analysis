@@ -17,7 +17,7 @@ class CryptoidDataScrapper(GenericBlockchainDataScrapper):
     def _get_regex_patterns(self, id):
         datetime_regex_pattern = "<tr><td>Date/Time<td>\\r?\\n            (?P<datetime>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})"
         difficulty_regex_pattern = "<tr><td>Difficulty<td>(?P<difficulty>" + ConstantRegex.DECIMAL_NUMBER + ")"
-        reward_regex_pattern = ",\"v\":(?P<block_reward>" + ConstantRegex.DECIMAL_NUMBER + "),\"inputs\":\\[\"Generation"
+        reward_regex_pattern = ",\"v\":(?P<reward>" + ConstantRegex.DECIMAL_NUMBER + "),\"inputs\":\\[\"Generation"
         return [reward_regex_pattern, difficulty_regex_pattern, datetime_regex_pattern]
 
     def _get_primary_url(self, id):

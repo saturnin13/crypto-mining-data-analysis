@@ -16,7 +16,7 @@ class DatabaseAccessor:
         print("Inserting currency (" + currency.value + "), reward (" + str(reward) + "), difficulty (" + str(difficulty) + ") and date_time (" + str(date_time) + ")")
 
         table_name = self.__historical_data_table_name(currency)
-        col_names = ["block_reward", "difficulty", "block_number"]
+        col_names = ["reward", "difficulty", "block_number"]
         col_values = [str(reward), str(difficulty), str(block_number)]
 
         self.__upsert_time_range_request(table_name, col_names, col_values, date_time, datetime_lower_limit, datetime_upper_limit)

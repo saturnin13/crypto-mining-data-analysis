@@ -5,7 +5,7 @@ class GenericBlockchainDataScrapper(GenericDataScrapper):
 
     _optional_input_default_value = {}
     _expected_inputs = ["block_number"]
-    _get_outputs_as_string = ["block_number", "block_reward", "difficulty", "datetime"]
+    _get_outputs_as_string = ["block_number", "reward", "difficulty", "datetime"]
 
     def _get_auxiliary_urls(self, primary_content, id):
         return super()._get_auxiliary_urls(primary_content, id)

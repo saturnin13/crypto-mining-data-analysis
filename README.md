@@ -2,9 +2,10 @@
 ##command line .\project.sh
 
 ## PSQL useful
-to create a new table:
-CREATE TABLE table_name (LIKE "GRS_historical_data" INCLUDING DEFAULTS INCLUDING CONSTRAINTS INCLUDING INDEXES);
-
+To create a new table:  
+CREATE TABLE table_name (LIKE "GRS_historical_data" INCLUDING DEFAULTS INCLUDING CONSTRAINTS INCLUDING INDEXES);  
+To rename a column  
+ALTER TABLE "XMR_historical_data" RENAME USD_per_GRS TO USD_per_XMR;  
 
 ## TO add a new currency historical data fetcher
 # Add new table for historical data

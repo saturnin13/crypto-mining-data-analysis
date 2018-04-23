@@ -10,8 +10,8 @@ def run_project(args):
 
     project = Project(options)
 
-    # print('Printing date:' + project.date())
-    # print('Printing example arg:', project.print_example_arg())
+    # project.date()
+    # example arg: project.print_example_arg()
     input()
 
 if __name__ == '__main__':

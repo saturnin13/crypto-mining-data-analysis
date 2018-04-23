@@ -13,12 +13,12 @@ class HistoricalDataRevenueCalculator:
 
         revenues_and_datetime = []
         for row in currency_historical_data:
-            block_reward = row["block_reward"]
+            reward = row["reward"]
             difficulty = row["difficulty"]
             usd_per_grs = row["usd_per_grs"]
-            if(block_reward is None or difficulty is None or usd_per_grs is None):
+            if(reward is None or difficulty is None or usd_per_grs is None):
                 continue
-            revenue = block_reward * hashrate / (difficulty * 2**32) * revenue_unit.total_seconds() * usd_per_grs
+            revenue = reward * hashrate / (difficulty * 2**32) * revenue_unit.total_seconds() * usd_per_grs
             revenues_and_datetime.append((revenue, row["datetime"]))
 
         return revenues_and_datetime

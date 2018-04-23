@@ -12,6 +12,8 @@ class CoinmarketcapDataScrapper(GenericExchangeRateDataScrapper):
     def _currency_full_name(self):
         pass
 
+    _earliest_start_date = datetime(2013, 4, 28)
+
     def _get_regex_patterns(self, id):
         return  ["( )*<tr class=\"text-right\">\\r?\\n" \
                 "( )*<td class=\"text-left\">(?P<datetime>\w+ \d+, \d+)</td>\\r?\\n" \
@@ -24,7 +26,7 @@ class CoinmarketcapDataScrapper(GenericExchangeRateDataScrapper):
                 "( )*</tr>"]
 
     def _get_primary_url(self, id):
-        start = id["start_date"].strftime('%Y%m%d')
+        start = id["start_date"].strftime('%Y%m%d') if self._earliest_start_date >= id["start_date"] else self._earliest_start_date
         end = id["end_date"].strftime('%Y%m%d')
         return "https://coinmarketcap.com/currencies/" + str(self._currency_full_name) + "/historical-data/?start=" + start + "&end=" + end
 
