@@ -4,9 +4,6 @@ from src.data_scrapper.exchange_rate.coinmarketcap.GRS_exchange_rate_data_scrapp
 
 
 class ExchangeRateDataScrapperFactory:
-    def __init__(self):
-        pass
-
     def getDataScrapper(currency):
         if(currency == Currencies.GRS):
             return GRSExchangeRateDataScrapper()

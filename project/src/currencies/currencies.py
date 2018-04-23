@@ -1,5 +1,7 @@
 from enum import Enum
 
+from src.currencies.algorithms import Algorithms
+
 
 class Currencies(Enum):
     GRS = "GRS"
@@ -7,4 +9,7 @@ class Currencies(Enum):
     @staticmethod
     def get_algorithm(currency):
         if(currency == Currencies.GRS):
-            return "groestl"
+            return Algorithms.GROESTL
+
+    def __str__(self):
+        return self.name

@@ -10,7 +10,7 @@ class GRSDatabaseFilling:
 
     def fill(self):
         database_filler = CurrencyHistoricalDataDatabaseFilling()
-        database_filler.fill_in_database_for_currency(Currencies.GRS, sleep_time_blockchain=2, block_number=1, time_delta=datetime.timedelta(days=1))
+        database_filler.fill_in_database_for_currency(Currencies.GRS, sleep_time_blockchain=2, block_number=2056770, time_delta=datetime.timedelta(days=1))
 
 grs = GRSDatabaseFilling()
 grs.fill()

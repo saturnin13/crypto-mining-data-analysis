@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 db = DatabaseAccessor()
 currency_historical_data = db.get_currency_historical_data(Currencies.GRS)
-graphic_card_data = db.get_graphic_card_data(Currencies.get_algorithm(Currencies.GRS), "GTX 750 TI")
+graphic_card_data = db.get_graphic_card_data(Currencies.get_algorithm(Currencies.GRS).value, "GTX 750 TI")
 
 currency_historical_data.sort(key=lambda x: x["datetime"])
 
@@ -15,8 +15,8 @@ day_above_0 = 0
 day_under_0 = 0
 
 for row in currency_historical_data[2:]:
-    revenue = row["revenue_per_day_per_hashrate"]
-    cost = graphic_card_data[0]["cost_per_day_per_hashrate"]
+    revenue = row["revenue_per_day_per_hashrate_in_dollar"]
+    cost = graphic_card_data[0]["cost_per_day_per_hashrate_in_dollar"]
     date_time = row["datetime"]
     if(revenue is None or cost is None or date_time is None):
         continue
@@ -27,7 +27,6 @@ for row in currency_historical_data[2:]:
         day_under_0 += 1
     profit_axis.append(profit)
     date_time_axis.append(date_time)
-
 
 print("day_above_0 " + str(day_above_0))
 print("day_under_0 " + str(day_under_0))

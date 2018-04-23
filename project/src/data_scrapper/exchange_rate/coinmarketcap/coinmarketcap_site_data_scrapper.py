@@ -1,27 +1,36 @@
 from abc import abstractmethod
+from datetime import datetime
 
-from src.data_scrapper.exchange_rate.coinmarkercap_scrapped_data import CoinmarketcapScrappedData
 from src.data_scrapper.exchange_rate.generic_exchange_rate_data_scrapper import GenericExchangeRateDataScrapper
 from src.regex.constant_regex import ConstantRegex
 
 
 class CoinmarketcapDataScrapper(GenericExchangeRateDataScrapper):
-    closes_regex_pattern = "( )*<tr class=\"text-right\">\\r?\\n" \
-                           "( )*<td class=\"text-left\">(?P<" + str(CoinmarketcapScrappedData.date.value) + ">\w+ \d+, \d+)</td>\\r?\\n" \
-                           "( )*<td data-format-fiat data-format-value=\"" + ConstantRegex.DECIMAL_NUMBER + "\">" + ConstantRegex.DECIMAL_NUMBER + "</td>\\r?\\n" \
-                           "( )*<td data-format-fiat data-format-value=\"" + ConstantRegex.DECIMAL_NUMBER + "\">" + ConstantRegex.DECIMAL_NUMBER + "</td>\\r?\\n" \
-                           "( )*<td data-format-fiat data-format-value=\"" + ConstantRegex.DECIMAL_NUMBER + "\">" + ConstantRegex.DECIMAL_NUMBER + "</td>\\r?\\n" \
-                           "( )*<td data-format-fiat data-format-value=\"(?P<" + str(CoinmarketcapScrappedData.close.value) + ">" + ConstantRegex.DECIMAL_NUMBER + ")\">" + ConstantRegex.DECIMAL_NUMBER + "</td>\\r?\\n" \
-                           "( )*<td data-format-market-cap data-format-value=\"" + ConstantRegex.DECIMAL_NUMBER + "\">" + ConstantRegex.DECIMAL_NUMBER + "</td>\\r?\\n" \
-                           "( )*<td data-format-market-cap data-format-value=\"" + ConstantRegex.DECIMAL_NUMBER + "\">" + ConstantRegex.DECIMAL_NUMBER + "</td>\\r?\\n" \
-                           "( )*</tr>"
 
     @property
     @abstractmethod
-    def currency_full_name(self):
+    def _currency_full_name(self):
         pass
 
-    def _get_url(self, start_date, end_date):
-        start = start_date.strftime('%Y%m%d')
-        end = end_date.strftime('%Y%m%d')
-        return "https://coinmarketcap.com/currencies/" + str(self.currency_full_name) + "/historical-data/?start=" + start + "&end=" + end
+    def _get_regex_patterns(self, id):
+        return  ["( )*<tr class=\"text-right\">\\r?\\n" \
+                "( )*<td class=\"text-left\">(?P<datetime>\w+ \d+, \d+)</td>\\r?\\n" \
+                "( )*<td data-format-fiat data-format-value=\"" + ConstantRegex.NUMBER + "\">" + ConstantRegex.NUMBER + "</td>\\r?\\n" \
+                "( )*<td data-format-fiat data-format-value=\"" + ConstantRegex.NUMBER + "\">" + ConstantRegex.NUMBER + "</td>\\r?\\n" \
+                "( )*<td data-format-fiat data-format-value=\"" + ConstantRegex.NUMBER + "\">" + ConstantRegex.NUMBER + "</td>\\r?\\n" \
+                "( )*<td data-format-fiat data-format-value=\"(?P<close>" + ConstantRegex.NUMBER + ")\">" + ConstantRegex.NUMBER + "</td>\\r?\\n" \
+                "( )*<td data-format-market-cap data-format-value=\"" + ConstantRegex.NUMBER + "\">" + ConstantRegex.NUMBER + "</td>\\r?\\n" \
+                "( )*<td data-format-market-cap data-format-value=\"" + ConstantRegex.NUMBER + "\">" + ConstantRegex.NUMBER + "</td>\\r?\\n" \
+                "( )*</tr>"]
+
+    def _get_primary_url(self, id):
+        start = id["start_date"].strftime('%Y%m%d')
+        end = id["end_date"].strftime('%Y%m%d')
+        return "https://coinmarketcap.com/currencies/" + str(self._currency_full_name) + "/historical-data/?start=" + start + "&end=" + end
+
+    def _post_processing_single_result(self, id, result):
+        result["datetime"] = datetime.strptime(result["datetime"], "%b %d, %Y")
+        return result
+
+    def _post_processing_all_result(self, result):
+        return list(reversed(result))

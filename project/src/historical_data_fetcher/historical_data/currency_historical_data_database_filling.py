@@ -22,14 +22,16 @@ class CurrencyHistoricalDataDatabaseFilling:
         data_scrapper = BlockChainDataScrapperFactory.getDataScrapper(currency)
         highest_block_under_datetime_range = -1
         block_number_incrementation = 1
-        current_date_time = data_scrapper.get_block_date(block_number)
+        data = data_scrapper.get_data({"block_number": [block_number]})
+        current_date_time = data[0]["datetime"]
         datetime_lower_limit = self.__truncated_datetime_limit(time_delta, current_date_time)
 
         while(True):
             print("\nblock: " + str(block_number))
-            current_date_time = data_scrapper.get_block_date(block_number)
-            if(current_date_time is None):
+            data = data_scrapper.get_data({"block_number": [block_number]})
+            if(not data):
                 break
+            current_date_time = data[0]["datetime"]
             datetime_difference = self.__check_time_limit_frame(current_date_time, datetime_lower_limit, time_delta)
             if(block_number == highest_block_under_datetime_range + 1):
                 datetime_lower_limit = self.__truncated_datetime_limit(time_delta, current_date_time)
@@ -40,11 +42,11 @@ class CurrencyHistoricalDataDatabaseFilling:
             elif(datetime_difference == 1):
                 print("Date of current block (" + str(current_date_time) + ") is too big compared to the last one (" + str(datetime_lower_limit) + ") and the delta (" + str(time_delta) + ")")
                 block_number -= block_number_incrementation
-                block_number_incrementation = min(int(0.9 * block_number_incrementation), 1)
+                block_number_incrementation = max(int(0.9 * block_number_incrementation), 1)
             else:
                 print(Colors.OKBLUE + "Processing block " + str(block_number) + ", retrieving the data" + Colors.ENDC)
-                current_reward = data_scrapper.get_block_reward(block_number)
-                current_difficulty = data_scrapper.get_block_difficulty(block_number)
+                current_reward = data[0]["block_reward"]
+                current_difficulty = data[0]["difficulty"]
                 self.db.upsert_currency_blockchain_historical_data(currency, current_reward, current_difficulty, block_number,
                                                               self.__truncated_datetime_limit(time_delta, current_date_time),
                                                               datetime_lower_limit, datetime_lower_limit + time_delta)
@@ -54,11 +56,11 @@ class CurrencyHistoricalDataDatabaseFilling:
 
     def __fill_in_exchange_rate_data(self, currency, time_delta):
         data_scrapper = ExchangeRateDataScrapperFactory.getDataScrapper(currency)
-        closes_exchange_rates = data_scrapper.get_all_closes_and_dates()
-        datetime_lower_limit = self.__truncated_datetime_limit(time_delta, closes_exchange_rates[0][1])
+        closes_exchange_rates = data_scrapper.get_data()
+        datetime_lower_limit = self.__truncated_datetime_limit(time_delta, closes_exchange_rates[0]["datetime"])
 
         for i in range(len(closes_exchange_rates)):
-            current_date_time = closes_exchange_rates[i][1]
+            current_date_time = closes_exchange_rates[i]["datetime"]
             datetime_difference = self.__check_time_limit_frame(current_date_time, datetime_lower_limit, time_delta)
             if(datetime_difference == -1):
                 pass
@@ -66,8 +68,9 @@ class CurrencyHistoricalDataDatabaseFilling:
                 datetime_lower_limit = self.__truncated_datetime_limit(time_delta, current_date_time)
                 i -= 1
             else:
-                close_value = closes_exchange_rates[i][0]
-                self.db.upsert_currency_exchange_rate_historical_data(currency, close_value, self.__truncated_datetime_limit(time_delta, current_date_time), datetime_lower_limit, datetime_lower_limit + time_delta)
+                close_value = closes_exchange_rates[i]["close"]
+                self.db.upsert_currency_exchange_rate_historical_data(currency, close_value, self.__truncated_datetime_limit(time_delta, current_date_time),
+                                                                      datetime_lower_limit, datetime_lower_limit + time_delta)
                 datetime_lower_limit += time_delta
 
     def __fill_in_revenue_data(self, currency):
@@ -82,7 +85,7 @@ class CurrencyHistoricalDataDatabaseFilling:
     def __check_time_limit_frame(self, current_date_time, time_limit, time_delta):
         if(time_limit > current_date_time):
             return -1
-        elif(time_limit <= current_date_time and time_limit + time_delta >= current_date_time):
+        elif(time_limit <= current_date_time and time_limit + time_delta > current_date_time):
             return 0
         else:
             return 1
