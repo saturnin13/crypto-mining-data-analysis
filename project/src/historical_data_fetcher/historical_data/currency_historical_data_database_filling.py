@@ -27,7 +27,7 @@ class CurrencyHistoricalDataDatabaseFilling:
         datetime_lower_limit = self.__truncated_datetime_limit(time_delta, current_date_time)
 
         while(True):
-            print("\nblock: " + str(block_number))
+            print("\nblock: " + str(block_number) + " for currency: " + str(currency))
             data = data_scrapper.get_data({"block_number": [block_number]})
             if(not data):
                 break
@@ -44,7 +44,7 @@ class CurrencyHistoricalDataDatabaseFilling:
                 block_number -= block_number_incrementation
                 block_number_incrementation = max(int(0.9 * block_number_incrementation), 1)
             else:
-                print(Colors.OKBLUE + "Processing block " + str(block_number) + ", retrieving the data" + Colors.ENDC)
+                print(Colors.WARNING + "Processing block " + str(block_number) + ", retrieving the data" + Colors.ENDC)
                 current_reward = data[0]["block_reward"]
                 current_difficulty = data[0]["difficulty"]
                 self.db.upsert_currency_blockchain_historical_data(currency, current_reward, current_difficulty, block_number,

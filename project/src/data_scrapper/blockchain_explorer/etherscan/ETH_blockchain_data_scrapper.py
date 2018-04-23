@@ -17,13 +17,15 @@ class ETHBlockchainDataScrapper(GenericBlockchainDataScrapper):
         difficulty_regex_pattern   = "( )*<tr>\\r?\\n" \
                                      "( )*<td width=\"190\">&nbsp;&nbsp;Difficulty:\\r?\\n" \
                                      "( )*</td>\\r?\\n" \
-                                     "( )*<td>\\r?\\n(?P<difficulty>" + ConstantRegex.DECIMAL_NUMBER + ")\\r?\\n" \
+                                     "( )*<td>\\r?\\n" \
+                                     "( )*(?P<difficulty>" + ConstantRegex.DECIMAL_NUMBER + ")\\r?\\n" \
                                      "( )*</td>\\r?\\n" \
                                      "( )*</tr>"
         block_reward_regex_pattern = "( )*<tr>\\r?\\n" \
                                      "( )*<td width=\"190\">&nbsp;&nbsp;Block Reward:\\r?\\n" \
                                      "( )*</td>\\r?\\n" \
-                                     "( )*<td>\\r?\\n(?P<block_reward>" + ConstantRegex.DECIMAL_NUMBER + ")" \
+                                     "( )*<td>\\r?\\n" \
+                                     "( )*(?P<block_reward>" + ConstantRegex.DECIMAL_NUMBER + ")" \
                                      "(<b>.</b>(?P<block_reward_decimal>" + ConstantRegex.DECIMAL_NUMBER + "))? Ether( \\(.*\\))?( )?</td>\\r?\\n" \
                                      "( )*</tr>\\r?\\n" \
                                      "( )*<tr>"
@@ -36,10 +38,10 @@ class ETHBlockchainDataScrapper(GenericBlockchainDataScrapper):
         return "https://etherscan.io/block/" + str(id["block_number"])
 
     def _post_processing_single_result(self, id, result):
-        result["datetime"] = datetime.strptime(result["datetime"], "%b-%d-%Y %H:%M:%S %p")
         result["block_number"] = id["block_number"]
-        if(result["block_reward_decimal"]):
+        result["datetime"] = datetime.strptime(result["datetime"], "%b-%d-%Y %H:%M:%S %p")
+        if("block_reward_decimal" in result and result["block_reward_decimal"]):
             result["block_reward"] = float(result["block_reward"]) + float(result["block_reward_decimal"]) / 10**len(result["block_reward_decimal"])
-        result.pop("block_reward_decimal")
+            result.pop("block_reward_decimal")
         result["difficulty"] = float(result["difficulty"].replace(',',''))
         return result

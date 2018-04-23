@@ -30,7 +30,7 @@ class GenericDataScrapper(ABC):
     def __check_input(self, ids):
         for input in self._expected_inputs:
             if(input not in ids.keys()):
-                raise Exception("The input " + input + " is missing from the function call")
+                raise Exception("An input is missing from the function call")
 
     def __find_all_patterns(self, ids, id_buffer={}):
         if(not ids):
