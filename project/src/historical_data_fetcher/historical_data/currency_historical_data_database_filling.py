@@ -14,9 +14,9 @@ class CurrencyHistoricalDataDatabaseFilling:
         self.db = DatabaseAccessor()
 
     def fill_in_database_for_currency(self, currency, time_delta=datetime.timedelta(hours=1), sleep_time_blockchain=1, sleep_time_exchange_rate=1, block_number=1):
-        self.__fill_in_blockchain_data(currency, time_delta, sleep_time_blockchain, block_number)
+        # self.__fill_in_blockchain_data(currency, time_delta, sleep_time_blockchain, block_number)
         self.__fill_in_exchange_rate_data(currency, time_delta)
-        self.__fill_in_revenue_data(currency)
+        # self.__fill_in_revenue_data(currency)
 
     def __fill_in_blockchain_data(self, currency, time_delta, sleep_time_blockchain, block_number):
         block_number = block_number if(currency.starting_block() < block_number) else currency.starting_block()
@@ -61,7 +61,8 @@ class CurrencyHistoricalDataDatabaseFilling:
         closes_exchange_rates = data_scrapper.get_data()
         datetime_lower_limit = self.__truncated_datetime_limit(time_delta, closes_exchange_rates[0]["datetime"])
 
-        for i in range(len(closes_exchange_rates)):
+        i = 0
+        while(i < len(closes_exchange_rates)):
             current_date_time = closes_exchange_rates[i]["datetime"]
             datetime_difference = self.__check_time_limit_frame(current_date_time, datetime_lower_limit, time_delta)
             if(datetime_difference == -1):
@@ -74,6 +75,7 @@ class CurrencyHistoricalDataDatabaseFilling:
                 self.db.upsert_currency_exchange_rate_historical_data(currency, close_value, self.__truncated_datetime_limit(time_delta, current_date_time),
                                                                       datetime_lower_limit, datetime_lower_limit + time_delta)
                 datetime_lower_limit += time_delta
+            i += 1
 
     def __fill_in_revenue_data(self, currency):
         revenue_calculator = HistoricalDataRevenueCalculator()

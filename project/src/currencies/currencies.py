@@ -33,5 +33,12 @@ class Currencies(Enum):
         elif(self == Currencies.BTG):
             return 491407
 
+    def difficulty_one_target(self):
+        if(self == Currencies.GRS or self == Currencies.BTG):
+            return 2**32
+        elif(self == Currencies.ETH or self == Currencies.ETC or self == Currencies.XMR or self == Currencies.BCN or self == Currencies.FCN
+             or self == Currencies.QCN):
+            return 1
+
     def __str__(self):
         return self.name

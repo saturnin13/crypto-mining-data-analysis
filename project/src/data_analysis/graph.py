@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 db = DatabaseAccessor()
-currency_historical_data = db.get_currency_historical_data(Currencies.GRS)
+currency_historical_data = db.get_currency_historical_data(Currencies.ETH)
 graphic_card_data = db.get_graphic_card_data(Currencies.get_algorithm(Currencies.GRS).value, "GTX 750 TI")
 
 currency_historical_data.sort(key=lambda x: x["datetime"])
@@ -20,7 +20,7 @@ for row in currency_historical_data[2:]:
     date_time = row["datetime"]
     if(revenue is None or cost is None or date_time is None):
         continue
-    profit = revenue - cost
+    profit = (0.98 * revenue - cost) * 3600* 24 * (100*1000000)
     if(profit > 0):
         day_above_0 += 1
     else:
@@ -31,6 +31,6 @@ for row in currency_historical_data[2:]:
 print("day_above_0 " + str(day_above_0))
 print("day_under_0 " + str(day_under_0))
 plt.plot(date_time_axis, profit_axis)
-plt.ylabel('some numbers')
+plt.ylabel('profit per day per hashrate in usd')
 plt.axhline(y=0, color='r', linestyle='-')
 plt.show()
