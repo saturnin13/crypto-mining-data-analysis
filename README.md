@@ -9,12 +9,23 @@ ALTER TABLE "XMR_historical_data" RENAME USD_per_GRS TO USD_per_XMR;
 
 ## TO add a new currency historical data fetcher
 # Add new table for historical data
-CREATE TABLE table_name (LIKE "GRS_historical_data" INCLUDING DEFAULTS INCLUDING CONSTRAINTS INCLUDING INDEXES);
+create a new table: CREATE TABLE table_name (LIKE "GRS_historical_data" INCLUDING DEFAULTS INCLUDING CONSTRAINTS INCLUDING INDEXES);
+rename the column: ALTER TABLE "XMR_historical_data" RENAME USD_per_GRS TO USD_per_XMR;    
 
-# Create a block chain data fetcher
+
+# Create a block chain data scrapper
 1/ create a class extending GenericBlockchainDataScrapper  
 2/ Override the abstract methods  
 3/ Add the algorithm to Algorithms class and the currency to Currencies class  
 4/ Add the new class to the BlockChainDataScrapperFactory  
-5/ Add the call to the currency blockchain to CurrenciesDatabaseFilling and adjust time to avoid DDoS protection
+  
+# Create an exchange rate data scrapper
+1/ create a class extending GenericExchangeRateDataScrapper  
+2/ Override the abstract methods  
+3/ Add the new class to the ExchangeRateDataScrapperFactory  
+4/ Add the call to the currency blockchain to CurrenciesDatabaseFilling and adjust time to avoid DDoS protection
+
+# Finally  
+
+1/ Add the call to the currency blockchain to CurrenciesDatabaseFilling and adjust time to avoid DDoS protection
   

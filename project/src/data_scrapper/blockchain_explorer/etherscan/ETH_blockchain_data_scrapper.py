@@ -38,7 +38,7 @@ class ETHBlockchainDataScrapper(GenericBlockchainDataScrapper):
         return "https://etherscan.io/block/" + str(id["block_number"])
 
     def _post_processing_single_result(self, id, result):
-        result["block_number"] = id["block_number"]
+        result = super()._post_processing_single_result(id, result)
         result["datetime"] = datetime.strptime(result["datetime"], "%b-%d-%Y %H:%M:%S %p")
         if("reward_decimal" in result and result["reward_decimal"]):
             result["reward"] = float(result["reward"]) + float(result["reward_decimal"]) / 10**len(result["reward_decimal"])

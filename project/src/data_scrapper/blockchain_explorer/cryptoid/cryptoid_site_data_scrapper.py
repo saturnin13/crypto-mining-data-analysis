@@ -30,8 +30,8 @@ class CryptoidDataScrapper(GenericBlockchainDataScrapper):
         return ["https://chainz.cryptoid.info/explorer/block.txs.dws?coin=" + str(self.currency_short_name).lower() + "&h=" + hash + ".js"]
 
     def _post_processing_single_result(self, id, result):
+        result = super()._post_processing_single_result(id, result)
         result["datetime"] = datetime.strptime(result["datetime"], "%Y-%m-%d %H:%M:%S")
-        result["block_number"] = id["block_number"]
         return result
 
     def __find_hash(self, content):

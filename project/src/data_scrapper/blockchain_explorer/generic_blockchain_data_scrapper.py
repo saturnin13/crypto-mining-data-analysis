@@ -25,6 +25,10 @@ class GenericBlockchainDataScrapper(GenericDataScrapper):
     def _post_processing_page_loading(self, url_content, id):
         return super()._post_processing_page_loading(url_content, id)
 
+    def _post_processing_single_result(self, id, result):
+        result["block_number"] = id["block_number"]
+        return result
+
     def _post_processing_all_result(self, result):
         return super()._post_processing_all_result(result)
 

@@ -19,6 +19,8 @@ class CurrencyHistoricalDataDatabaseFilling:
         self.__fill_in_revenue_data(currency)
 
     def __fill_in_blockchain_data(self, currency, time_delta, sleep_time_blockchain, block_number):
+        block_number = block_number if(currency.starting_block() < block_number) else currency.starting_block()
+
         data_scrapper = BlockChainDataScrapperFactory.getDataScrapper(currency)
         highest_block_under_datetime_range = -1
         block_number_incrementation = 1

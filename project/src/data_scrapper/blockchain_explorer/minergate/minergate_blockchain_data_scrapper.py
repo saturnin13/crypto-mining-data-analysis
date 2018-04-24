@@ -26,7 +26,7 @@ class MinergateBlockchainDataScrapper(GenericBlockchainDataScrapper):
         return "https://minergate.com/ccapi/1.0/" + str(self._get_minergate_url_identifier) + "/blocks/" + str(id["block_number"]) + "/full"
 
     def _post_processing_single_result(self, id, result):
-        result["block_number"] = id["block_number"]
-        result["datetime"] =  datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=int(result["datetime"]))
+        result = super()._post_processing_single_result(id, result)
+        result["datetime"] = datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=int(result["datetime"]))
         result["reward"] = float(result["reward"]) / self._divide_reward_value
         return result

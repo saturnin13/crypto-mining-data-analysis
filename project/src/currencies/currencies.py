@@ -11,6 +11,7 @@ class Currencies(Enum):
     BCN = "BCN"
     FCN = "FCN"
     QCN = "QCN"
+    BTG = "BTG"
 
     @staticmethod
     def get_algorithm(currency):
@@ -20,8 +21,17 @@ class Currencies(Enum):
             return Algorithms.ETHASH
         elif (currency == Currencies.XMR or currency == Currencies.FCN or currency == Currencies.QCN):
             return Algorithms.CRYPTONIGHTV7
-        elif (currency == Currencies.BCN):
+        elif (currency == Currencies.BCN or currency == Currencies.BTG):
             return Algorithms.EQUIHASH
+
+    def starting_block(self):
+        if(self == Currencies.GRS or self == Currencies.ETH or self == Currencies.XMR or self == Currencies.BCN or self == Currencies.FCN
+                or self == Currencies.QCN):
+            return 1
+        elif(self == Currencies.ETC):
+            return 1920000
+        elif(self == Currencies.BTG):
+            return 491407
 
     def __str__(self):
         return self.name
