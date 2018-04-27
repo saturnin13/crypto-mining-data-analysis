@@ -7,7 +7,6 @@ from src.variables.variables import Variables
 
 class DataAnalyser:
 
-
     def __init__(self, currencies, graphic_cards, starting_datetime=datetime.datetime(2009, 1, 1), end_datetime=datetime.datetime.now(),
                  fees=0.0, time_unit=datetime.timedelta(days=1), price_in_kwh=Variables.ELECTRICITY_COST):
         self.currencies = self.__convert_to_list(currencies)
@@ -28,15 +27,19 @@ class DataAnalyser:
                                     x_label="Graphic card", y_label="profit in dollar",
                                     title="Total profit in dollar for max profit for time interval (" + str(self.starting_datetime) + " to " + str(self.end_datetime) + ")")
 
-    def load_graphs_max_profit_graphic_cards(self):
+    def load_histograms_max_profit_graphic_cards(self, graphs=False):
         for graphic_card in self.graphic_cards:
             current_card_info = [item for item in self.graphic_cards_info if item["graphic_card"] == graphic_card][0]
             labels = [str(item) for item in current_card_info["max_profits_datetime"]["currencies"]]
             title = "Max profit for " + str(graphic_card) + " with currencies " + str(set(labels))
             profits = current_card_info["max_profits_datetime"]["profits"]
             datetimes = current_card_info["max_profits_datetime"]["datetimes"]
-            GraphManager.plot_graph(datetimes, profits, x_label="Time", y_label="Max profit per " + str(self.time_unit) + " per hashrate in usd",
-                                    title=title, labels=labels)
+            if(graphs):
+                GraphManager.plot_graph(datetimes, profits, x_label="Time", y_label="Max profit per " + str(self.time_unit) + " per hashrate in usd",
+                                        title=title, labels=labels)
+            else:
+                GraphManager.plot_histogram(profits, datetimes, labels=labels)
+
 
     def load_3dhistogram_average_profit(self):
         self.__display_3dhistogram_value("average_profit")

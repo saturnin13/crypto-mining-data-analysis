@@ -1,7 +1,7 @@
 import datetime
 import random
 from operator import itemgetter
-
+from random import shuffle
 import matplotlib.dates as mdates
 from matplotlib.collections import LineCollection
 from mpl_toolkits.mplot3d import Axes3D
@@ -66,11 +66,10 @@ class GraphManager:
         plt.gca().add_collection(coll)
 
         plt.gca().xaxis.set_major_locator(mdates.MonthLocator(bymonth=[1,3,5,7,9,11]))
-        major_formatter = mdates.DateFormatter("%Y-%m")
-        plt.gca().xaxis.set_major_formatter(major_formatter)
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
         plt.gca().xaxis.set_tick_params(which='major', rotation=45)
 
-        unique_labels = list(set(labels))
+        unique_labels, _ = zip(*sorted(((e, labels.count(e)) for e in set(labels)), key=lambda x: x[1], reverse=True))
         plt.legend([plt.Line2D((0, 1), (0, 0), color=GraphManager.__random_color(label)) for label in unique_labels], unique_labels, loc="best")
         plt.plot()
 
@@ -116,8 +115,13 @@ class GraphManager:
     @staticmethod
     def __random_color(seed=None):
         random.seed(seed)
-        r = lambda: random.randint(0, 255)
-        return '#%02X%02X%02X' % (r(), r(), r())
+        # Max is 255, Min is 0
+        r_middle = lambda: random.randint(30, 240)
+        r_low = lambda: random.randint(0, 80)
+        r_high = lambda: random.randint(146, 240)
+        rgb = [r_middle(), r_low(), r_high()]
+        shuffle(rgb)
+        return '#%02X%02X%02X' % tuple(rgb) # '#%02X%02X%02X' % (r(), r(), r())
 
     @staticmethod
     def __convert_to_ints(items):
@@ -132,21 +136,32 @@ class GraphManager:
         return result
 
     @staticmethod
-    def plot_histogram(X, Y, x_label=None, y_label=None, title=None):
-        plt.figure()
-        y_pos = np.arange(len(Y))
+    def plot_histogram(X, Y, x_label=None, y_label=None, title=None, labels=None):
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
 
-        for i in range(len(X)):
-            plt.bar(y_pos[i], X[i], align='center', alpha=0.5)
+        y_pos = Y if labels else np.arange(len(Y))
 
-        plt.xticks(y_pos, Y)
-        plt.xticks(rotation=35)
+        bar_list = ax.bar(y_pos, X, align='center', alpha=0.5)
+
+        for i in range(len(bar_list)):
+            color = GraphManager.__random_color(labels[i]) if labels else GraphManager.__random_color()
+            bar_list[i].set_color(color)
+
+        if(labels):
+            unique_labels, _ = zip(*sorted(((e, labels.count(e)) for e in set(labels)), key=lambda x: x[1], reverse=True))
+            plt.legend([plt.Line2D((0, 1), (0, 0), color=GraphManager.__random_color(label)) for label in unique_labels], unique_labels, loc="best")
+        else:
+            plt.xticks(y_pos, Y)
+            plt.xticks(rotation=35)
+
         if (x_label):
             plt.xlabel(x_label)
         if (y_label):
             plt.ylabel(y_label)
         if (title):
             plt.title(title)
+        plt.axhline(y=0, color="black", linestyle="-", linewidth="1")
 
     @staticmethod
     def show():
