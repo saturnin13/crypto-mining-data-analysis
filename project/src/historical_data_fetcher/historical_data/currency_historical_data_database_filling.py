@@ -7,6 +7,7 @@ from src.data_scrapper.exchange_rate.exchange_rate_data_scrapper_factory import 
 from src.database_accessor.database_accessor import DatabaseAccessor
 from src.historical_data_fetcher.historical_data.currency_historical_data_revenue_calculator import HistoricalDataRevenueCalculator
 from src.printing.colors import Colors
+from src.utils.utils import Utils
 
 
 class CurrencyHistoricalDataDatabaseFilling:
@@ -14,9 +15,9 @@ class CurrencyHistoricalDataDatabaseFilling:
         self.db = DatabaseAccessor()
 
     def fill_in_database_for_currency(self, currency, time_delta=datetime.timedelta(hours=1), sleep_time_blockchain=1, sleep_time_exchange_rate=1, block_number=1):
-        # self.__fill_in_blockchain_data(currency, time_delta, sleep_time_blockchain, block_number)
+        self.__fill_in_blockchain_data(currency, time_delta, sleep_time_blockchain, block_number)
         self.__fill_in_exchange_rate_data(currency, time_delta)
-        # self.__fill_in_revenue_data(currency)
+        self.__fill_in_revenue_data(currency)
 
     def __fill_in_blockchain_data(self, currency, time_delta, sleep_time_blockchain, block_number):
         block_number = block_number if(currency.starting_block() < block_number) else currency.starting_block()
@@ -26,7 +27,7 @@ class CurrencyHistoricalDataDatabaseFilling:
         block_number_incrementation = 1
         data = data_scrapper.get_data({"block_number": [block_number]})
         current_date_time = data[0]["datetime"]
-        datetime_lower_limit = self.__truncated_datetime_limit(time_delta, current_date_time)
+        datetime_lower_limit = Utils.truncate_datetime_limit(time_delta, current_date_time)
 
         while(True):
             print("\nBlock: " + str(block_number) + " for currency: " + str(currency))
@@ -36,7 +37,7 @@ class CurrencyHistoricalDataDatabaseFilling:
             current_date_time = data[0]["datetime"]
             datetime_difference = self.__check_time_limit_frame(current_date_time, datetime_lower_limit, time_delta)
             if(block_number == highest_block_under_datetime_range + 1):
-                datetime_lower_limit = self.__truncated_datetime_limit(time_delta, current_date_time)
+                datetime_lower_limit = Utils.truncate_datetime_limit(time_delta, current_date_time)
             if(datetime_difference == -1):
                 print("Date of current block (" + str(current_date_time) + ") is too small compared to the last one (" + str(datetime_lower_limit) + ") and the delta(" + str(time_delta) + ")")
                 highest_block_under_datetime_range = block_number if block_number > highest_block_under_datetime_range else highest_block_under_datetime_range
@@ -50,8 +51,8 @@ class CurrencyHistoricalDataDatabaseFilling:
                 current_reward = data[0]["reward"]
                 current_difficulty = data[0]["difficulty"]
                 self.db.upsert_currency_blockchain_historical_data(currency, current_reward, current_difficulty, block_number,
-                                                              self.__truncated_datetime_limit(time_delta, current_date_time),
-                                                              datetime_lower_limit, datetime_lower_limit + time_delta)
+                                                                   Utils.truncate_datetime_limit(time_delta, current_date_time),
+                                                                   datetime_lower_limit, datetime_lower_limit + time_delta)
                 datetime_lower_limit += time_delta
             block_number += block_number_incrementation
             sleep(sleep_time_blockchain)
@@ -59,7 +60,7 @@ class CurrencyHistoricalDataDatabaseFilling:
     def __fill_in_exchange_rate_data(self, currency, time_delta):
         data_scrapper = ExchangeRateDataScrapperFactory.getDataScrapper(currency)
         closes_exchange_rates = data_scrapper.get_data()
-        datetime_lower_limit = self.__truncated_datetime_limit(time_delta, closes_exchange_rates[0]["datetime"])
+        datetime_lower_limit = Utils.truncate_datetime_limit(time_delta, closes_exchange_rates[0]["datetime"])
 
         i = 0
         while(i < len(closes_exchange_rates)):
@@ -68,11 +69,11 @@ class CurrencyHistoricalDataDatabaseFilling:
             if(datetime_difference == -1):
                 pass
             elif(datetime_difference == 1):
-                datetime_lower_limit = self.__truncated_datetime_limit(time_delta, current_date_time)
+                datetime_lower_limit = Utils.truncate_datetime_limit(time_delta, current_date_time)
                 i -= 1
             else:
                 close_value = closes_exchange_rates[i]["close"]
-                self.db.upsert_currency_exchange_rate_historical_data(currency, close_value, self.__truncated_datetime_limit(time_delta, current_date_time),
+                self.db.upsert_currency_exchange_rate_historical_data(currency, close_value, Utils.truncate_datetime_limit(time_delta, current_date_time),
                                                                       datetime_lower_limit, datetime_lower_limit + time_delta)
                 datetime_lower_limit += time_delta
             i += 1
@@ -93,16 +94,4 @@ class CurrencyHistoricalDataDatabaseFilling:
             return 0
         else:
             return 1
-
-    def __truncated_datetime_limit(self, time_delta, current_date_time):
-        if (time_delta.total_seconds() >= 3600 * 24 * 30):
-            return datetime.datetime(current_date_time.year, current_date_time.month, 1)
-        elif(time_delta.total_seconds() >= 3600 * 24):
-            return datetime.datetime(current_date_time.year, current_date_time.month, current_date_time.day)
-        elif (time_delta.total_seconds() >= 3600):
-            return datetime.datetime(current_date_time.year, current_date_time.month, current_date_time.day, current_date_time.hour)
-        elif (time_delta.total_seconds() >= 60):
-            return datetime.datetime(current_date_time.year, current_date_time.month, current_date_time.day, current_date_time.hour, current_date_time.minute)
-        else:
-            return datetime.datetime(current_date_time.year, current_date_time.month, current_date_time.day, current_date_time.hour, current_date_time.minute, current_date_time.second)
 

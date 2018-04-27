@@ -13,11 +13,11 @@ class CurrenciesDatabaseFilling:
 
         # database_filler.fill_in_database_for_currency(Currencies.BTG, sleep_time_blockchain=0.01, block_number=1, time_delta=datetime.timedelta(days=1))
         # database_filler.fill_in_database_for_currency(Currencies.ETC, sleep_time_blockchain=0.01, block_number=1, time_delta=datetime.timedelta(days=1))
-        database_filler.fill_in_database_for_currency(Currencies.ETH, sleep_time_blockchain=0.01, block_number=1, time_delta=datetime.timedelta(days=1))
-        # database_filler.fill_in_database_for_currency(Currencies.GRS, sleep_time_blockchain=2, block_number=1, time_delta=datetime.timedelta(days=1))
+        # database_filler.fill_in_database_for_currency(Currencies.ETH, sleep_time_blockchain=0.01, block_number=1, time_delta=datetime.timedelta(days=1))
+        # database_filler.fill_in_database_for_currency(Currencies.GRS, sleep_time_blockchain=3, block_number=66457, time_delta=datetime.timedelta(days=1))
         # database_filler.fill_in_database_for_currency(Currencies.XMR, sleep_time_blockchain=0.01, block_number=1, time_delta=datetime.timedelta(days=1))
 
-        # database_filler.fill_in_database_for_currency(Currencies.QCN, sleep_time_blockchain=0.01, block_number=1, time_delta=datetime.timedelta(days=1))
+        database_filler.fill_in_database_for_currency(Currencies.QCN, sleep_time_blockchain=0.01, block_number=1, time_delta=datetime.timedelta(days=1))
         # database_filler.fill_in_database_for_currency(Currencies.FCN, sleep_time_blockchain=0.01, block_number=1, time_delta=datetime.timedelta(days=1))
         # database_filler.fill_in_database_for_currency(Currencies.BCN, sleep_time_blockchain=0.01, block_number=1, time_delta=datetime.timedelta(days=1))
 

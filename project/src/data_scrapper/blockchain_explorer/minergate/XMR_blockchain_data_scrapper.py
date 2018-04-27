@@ -4,4 +4,4 @@ from src.data_scrapper.blockchain_explorer.minergate.minergate_blockchain_data_s
 class XMRBlockchainDataScrapper(MinergateBlockchainDataScrapper):
 
     _get_minergate_url_identifier = "mro"
-    _divide_reward = True
+    _divide_reward_value = 1000000000000

@@ -3,7 +3,6 @@ from src.data_scrapper.gpu_statistics.whattomine.whattomine_site_data_scrapper i
 from src.database_accessor.database_accessor import DatabaseAccessor
 from src.graphic_cards.graphic_cards import GraphicCards
 from src.historical_data_fetcher.gpu_statistics.gpu_statistics_cost_calculator import GpuStatisticsCostCalculator
-from src.variables.variables import Variables
 
 
 class GpuStatisticsDatabaseFilling:
@@ -23,8 +22,11 @@ class GpuStatisticsDatabaseFilling:
 
     def __fill_in_cost_data(self):
         cost_calculator = GpuStatisticsCostCalculator()
-        cost_algorithm_and_graphic_card = cost_calculator.get_currency_graphic_card_costs(price_kwh=Variables.ELECTRICITY_COST)
+        cost_algorithm_and_graphic_card = cost_calculator.get_currency_graphic_card_costs()
 
         for row in cost_algorithm_and_graphic_card:
             self.db.update_cost_gpu_statistics_data(row["algorithm"], row["graphic_card"], row["cost"])
+
+test = GpuStatisticsDatabaseFilling()
+test.fill_in_database()
 

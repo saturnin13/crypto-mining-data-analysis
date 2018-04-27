@@ -6,7 +6,7 @@ class DatabaseAccessor:
     def __init__(self):
         try:
             conn = psycopg2.connect(
-                "postgres://lncgqbiyoivknm:16497d98c045a638262b080a515986d172cadc0799e23f7ebc1cd225556116a7@ec2-54-217-214-201.eu-west-1.compute.amazonaws.com:5432/dabhdlnlb316fm")
+                "postgres://lmxhpacdmmgnfr:0f78fab407cdf1699b50b2fec55a742f65ab1a5cfbbb2c166394a09eb6acf652@ec2-54-247-89-189.eu-west-1.compute.amazonaws.com:5432/denvqvnkc5gm9j")
         except:
             print("Unable to connect to the database")
         self.conn = conn
@@ -35,13 +35,13 @@ class DatabaseAccessor:
         return self.__get_data_request(self.__historical_data_table_name(currency))
 
     def get_graphic_card_data(self, algorithm=None, graphic_card=None):
-        print("Getting graphic card data")
+        print("Getting graphic card data for algorithm (" + str(algorithm) +") and graphic card (" + str(graphic_card) + ")")
         # TODO: put this in helper method which automatically builds the string
         if(algorithm == None and graphic_card == None):
             condition = None
-        elif(algorithm == None):
+        elif(algorithm != None and graphic_card == None):
             condition = "algorithm='" + algorithm + "'"
-        elif(graphic_card == None):
+        elif(graphic_card != None and algorithm == None):
             condition = "graphic_card='" + graphic_card + "'"
         else:
             condition = "algorithm='" + algorithm + "' AND graphic_card='" + graphic_card + "'"
@@ -50,12 +50,12 @@ class DatabaseAccessor:
     def update_revenue_historical_data_currrencies(self, currency, revenue, date_time):
         print("Updating currency (" + currency.value + "), with revenue (" + str(revenue) + ") at date_time (" + str(date_time) + ")")
         condition = self.__convert_where_clause(["datetime"], [date_time])
-        self.__update_request(self.__historical_data_table_name(currency), ["revenue_per_day_per_hashrate_in_dollar"], [revenue], condition)
+        self.__update_request(self.__historical_data_table_name(currency), ["revenue_per_second_per_hashrate_in_dollar"], [revenue], condition)
 
     def update_cost_gpu_statistics_data(self, algorithm, graphic_card, cost):
         print("Updating algorithm (" + str(algorithm) + ") and graphic_card (" + str(graphic_card) + ") with cost value (" + str(cost) + ")")
         condition = self.__convert_where_clause(["algorithm", "graphic_card"], [algorithm, graphic_card])
-        self.__update_request("gpu_statistics", ["cost_per_day_per_hashrate_in_dollar"], [cost], condition)
+        self.__update_request("gpu_statistics", ["cost_per_second_per_hashrate_per_pricekwh_in_dollar"], [cost], condition)
 
     def upsert_data_gpu_statistics(self, data):
         print("Upserting gpu_statistics with data: " + str(sorted(data.items())))
