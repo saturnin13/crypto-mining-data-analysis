@@ -27,6 +27,3 @@ class GpuStatisticsDatabaseFilling:
         for row in cost_algorithm_and_graphic_card:
             self.db.update_cost_gpu_statistics_data(row["algorithm"], row["graphic_card"], row["cost"])
 
-test = GpuStatisticsDatabaseFilling()
-test.fill_in_database()
-

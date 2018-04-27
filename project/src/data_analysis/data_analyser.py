@@ -1,9 +1,7 @@
 import datetime
 
-from src.currencies.currencies import Currencies
-from src.data_analysis.graph_manager import GraphManager
-from src.data_analysis.info_pre_processor import InfoPreProcessor
-from src.graphic_cards.graphic_cards import GraphicCards
+from src.data_analysis.graph_management.graph_manager import GraphManager
+from src.data_analysis.preprocessor.info_pre_processor import InfoPreProcessor
 from src.variables.variables import Variables
 
 
@@ -60,7 +58,7 @@ class DataAnalyser:
         GraphManager.show()
 
     def __display_3dhistogram_value(self, value_string):
-        title = value_string.title() + " extrapolated from past data for currency and graphic card pairs for the time interval " + str(self.starting_datetime) + " to " + str(self.end_datetime)
+        title = value_string.title() + " per (" + str(self.time_unit) +") extrapolated from past data for currency and graphic card pairs for the time interval " + str(self.starting_datetime) + " to " + str(self.end_datetime)
         GraphManager.plot_3d_histogram([row["currency"] for row in self.currencies_graphic_cards_info],
                                        [row["graphic_card"] for row in self.currencies_graphic_cards_info],
                                        [row[value_string] for row in self.currencies_graphic_cards_info], title=title)
@@ -70,15 +68,3 @@ class DataAnalyser:
             return [item]
         else:
             return item
-
-
-test = DataAnalyser([currency for currency in Currencies], [graphic_card for graphic_card in GraphicCards], starting_datetime=datetime.datetime(2015, 1, 1))
-
-test.load_graphs_max_profit_graphic_cards()
-test.load_histogram_total_max_profit_graphic_cards()
-test.load_3dhistogram_average_profit()
-test.load_3dhistogram_instant_profit()
-test.display_loaded_graph()
-
-test.load_profit_graphs_graphic_cards()
-test.display_loaded_graph()

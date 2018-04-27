@@ -1,7 +1,7 @@
 import datetime
 
-from src.data_analysis.currencies_graphic_cards_info_pre_processor import CurrenciesGraphicCardsInfoPreProcessor
-from src.data_analysis.graphic_cards_pre_processor import GraphicCardsInfoPreProcessor
+from src.data_analysis.preprocessor.currencies_graphic_cards_info_pre_processor import CurrenciesGraphicCardsInfoPreProcessor
+from src.data_analysis.preprocessor.graphic_cards_pre_processor import GraphicCardsInfoPreProcessor
 from src.variables.variables import Variables
 
 

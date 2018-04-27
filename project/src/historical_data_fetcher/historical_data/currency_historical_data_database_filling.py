@@ -14,10 +14,11 @@ class CurrencyHistoricalDataDatabaseFilling:
     def __init__(self):
         self.db = DatabaseAccessor()
 
-    def fill_in_database_for_currency(self, currency, time_delta=datetime.timedelta(hours=1), sleep_time_blockchain=1, sleep_time_exchange_rate=1, block_number=1):
+    def fill_in_database_for_currency(self, currency, time_delta=datetime.timedelta(hours=1), sleep_time_blockchain=1, sleep_time_exchange_rate=1,
+                                      block_number=1, datetime_lower_limit_value=None):
         self.__fill_in_blockchain_data(currency, time_delta, sleep_time_blockchain, block_number)
-        self.__fill_in_exchange_rate_data(currency, time_delta)
-        self.__fill_in_revenue_data(currency)
+        self.__fill_in_exchange_rate_data(currency, time_delta, datetime_lower_limit_value=datetime_lower_limit_value)
+        self.__fill_in_revenue_data(currency, datetime_lower_limit_value=datetime_lower_limit_value)
 
     def __fill_in_blockchain_data(self, currency, time_delta, sleep_time_blockchain, block_number):
         block_number = block_number if(currency.starting_block() < block_number) else currency.starting_block()
@@ -57,10 +58,11 @@ class CurrencyHistoricalDataDatabaseFilling:
             block_number += block_number_incrementation
             sleep(sleep_time_blockchain)
 
-    def __fill_in_exchange_rate_data(self, currency, time_delta):
+    def __fill_in_exchange_rate_data(self, currency, time_delta, datetime_lower_limit_value=None):
         data_scrapper = ExchangeRateDataScrapperFactory.getDataScrapper(currency)
         closes_exchange_rates = data_scrapper.get_data()
-        datetime_lower_limit = Utils.truncate_datetime_limit(time_delta, closes_exchange_rates[0]["datetime"])
+        datetime_lower_limit_value = closes_exchange_rates[0]["datetime"] if datetime_lower_limit_value is None else datetime_lower_limit_value
+        datetime_lower_limit = Utils.truncate_datetime_limit(time_delta, datetime_lower_limit_value)
 
         i = 0
         while(i < len(closes_exchange_rates)):
@@ -78,13 +80,14 @@ class CurrencyHistoricalDataDatabaseFilling:
                 datetime_lower_limit += time_delta
             i += 1
 
-    def __fill_in_revenue_data(self, currency):
+    def __fill_in_revenue_data(self, currency, datetime_lower_limit_value=datetime.datetime(1970, 1, 1)):
         revenue_calculator = HistoricalDataRevenueCalculator()
         revenues_and_datetime = revenue_calculator.get_currency_historic_revenue(currency)
         for row in revenues_and_datetime:
             revenue = row[0]
             date_time = row[1]
-            self.db.update_revenue_historical_data_currrencies(currency, revenue, date_time)
+            if(date_time >= datetime_lower_limit_value):
+                self.db.update_revenue_historical_data_currrencies(currency, revenue, date_time)
 
 
     def __check_time_limit_frame(self, current_date_time, time_limit, time_delta):

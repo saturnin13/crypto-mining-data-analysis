@@ -45,7 +45,7 @@ class DatabaseAccessor:
             condition = "graphic_card='" + graphic_card + "'"
         else:
             condition = "algorithm='" + algorithm + "' AND graphic_card='" + graphic_card + "'"
-        return self.__get_data_request("gpu_statistics", condition)
+        return self.__get_data_request("gpu_statistics", conditions=condition)
 
     def update_revenue_historical_data_currrencies(self, currency, revenue, date_time):
         print("Updating currency (" + currency.value + "), with revenue (" + str(revenue) + ") at date_time (" + str(date_time) + ")")
@@ -61,6 +61,21 @@ class DatabaseAccessor:
         print("Upserting gpu_statistics with data: " + str(sorted(data.items())))
         self.__upsert_request("gpu_statistics", list(data.keys()), list(data.values()), conflict_col=["graphic_card", "algorithm", "source"])
 
+    def truncate_table(self, table_name):
+        print("Truncating " + str(table_name))
+        try:
+            self.cur.execute("TRUNCATE TABLE " + table_name)
+            self.conn.commit()
+        except (psycopg2.DatabaseError) as error:
+            raise Exception(error)
+
+    def get_most_recent_valid_row_currency_database(self, currency):
+        print("Getting the most recent block number for " + str(currency))
+        conditions_string = "block_number IS NOT NULL AND usd_per_" + str(currency) + " IS NOT NULL AND revenue_per_second_per_hashrate_in_dollar IS NOT NULL"
+        most_recent_valid_row = self.__get_data_request(str(currency) + "_historical_data", selection="MAX(datetime) as datetime",conditions=conditions_string)[0]["datetime"]
+
+        return self.__get_data_request(str(currency) + "_historical_data", conditions="datetime='" + str(most_recent_valid_row) + "'")[0]
+
 
 
     def __upsert_time_range_request(self, table_name, col_names, col_values, date_time, datetime_lower_limit, datetime_upper_limit):
@@ -72,16 +87,15 @@ class DatabaseAccessor:
         self.__update_request(table_name, col_names, col_values, update_conditions)
         self.conn.commit()
 
-    def __get_data_request(self, table_name, conditions=None):
+    def __get_data_request(self, table_name, selection="*", conditions=None):
         try:
             conditions = conditions if conditions != None and conditions != "" else "True"
-            self.cur.execute("SELECT * "
+            self.cur.execute("SELECT " + selection + " "
                              "FROM \"" + table_name + "\" "
                              "WHERE " + conditions)
             return self.cur.fetchall()
         except (psycopg2.DatabaseError) as error:
             raise Exception(error)
-
 
     def __upsert_request(self, table_name, col_names, col_values, exist_condition="False", conflict_update=True, conflict_col=None):
         try:
