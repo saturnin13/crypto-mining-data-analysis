@@ -1,7 +1,0 @@
-[packages]
-psycopg2 = "*"
-requests = "*"
-regex = "*"
-
-[requires]
-python_full_version = "3.6.4"
