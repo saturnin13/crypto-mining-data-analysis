@@ -31,14 +31,15 @@ class DataAnalyser:
         for graphic_card in self.graphic_cards:
             current_card_info = [item for item in self.graphic_cards_info if item["graphic_card"] == graphic_card][0]
             labels = [str(item) for item in current_card_info["max_profits_datetime"]["currencies"]]
-            title = "Max profit for " + str(graphic_card) + " with currencies " + str(set(labels))
+            title = "Max profit for " + str(graphic_card) + " with currencies " + str(set(labels)) + " for time interval (" + str(self.time_unit) + ") (legend is ordered)"
             profits = current_card_info["max_profits_datetime"]["profits"]
             datetimes = current_card_info["max_profits_datetime"]["datetimes"]
             if(graphs):
-                GraphManager.plot_graph(datetimes, profits, x_label="Time", y_label="Max profit per " + str(self.time_unit) + " per hashrate in usd",
+                GraphManager.plot_graph(datetimes, profits, x_label="Time", y_label="Max profit per (" + str(self.time_unit) + ") in USD",
                                         title=title, labels=labels)
             else:
-                GraphManager.plot_histogram(profits, datetimes, labels=labels)
+                GraphManager.plot_histogram(profits, datetimes, x_label="Time", y_label="Max profit per (" + str(self.time_unit) + ") in USD",
+                                            title=title, labels=labels)
 
 
     def load_3dhistogram_average_profit(self):
@@ -54,7 +55,7 @@ class DataAnalyser:
             title = str(graphic_card)
             profits = [item["profits_datetime"]["profits"] for item in filtered_list]
             datetimes = [item["profits_datetime"]["datetimes"] for item in filtered_list]
-            GraphManager.plot_graph(datetimes, profits, x_label="Time", y_label="Profit per " + str(self.time_unit) + " per hashrate in usd",
+            GraphManager.plot_graph(datetimes, profits, x_label="Time", y_label="Profit per (" + str(self.time_unit) + ") per hashrate in USD",
                                     title=title, labels=labels)
 
     def display_loaded_graph(self):

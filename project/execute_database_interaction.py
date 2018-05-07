@@ -3,10 +3,9 @@ from src.historical_data_fetcher.gpu_statistics.gpu_statistics_database_interact
 from src.historical_data_fetcher.historical_data.currencies_database_interactions import CurrenciesDatabaseInteractions
 
 
-
-# gpu_statistics_database_interactions = GpuStatisticsDatabaseInteractions()
-# gpu_statistics_database_interactions.load()
+gpu_statistics_database_interactions = GpuStatisticsDatabaseInteractions()
+gpu_statistics_database_interactions.update()
 
 grs = CurrenciesDatabaseInteractions()
-grs.update([currency for currency in Currencies])
+grs.update([item for item in Currencies])
 
