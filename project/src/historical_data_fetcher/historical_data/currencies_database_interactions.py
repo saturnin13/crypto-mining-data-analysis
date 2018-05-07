@@ -33,11 +33,5 @@ class CurrenciesDatabaseInteractions:
             self.__load_helper(currency, time_delta=time_delta)
 
     def __load_helper(self, currency, time_delta=datetime.timedelta(days=1), block_number=1, datetime_lower_limit_value=None):
-        self.database_filling.fill_in_database_for_currency(currency, sleep_time_blockchain=self.__get_currency_sleep_time(currency),
-                                                            block_number=block_number, time_delta=time_delta,
+        self.database_filling.fill_in_database_for_currency(currency, block_number=block_number, time_delta=time_delta,
                                                             datetime_lower_limit_value=datetime_lower_limit_value)
-
-    def __get_currency_sleep_time(self, currency):
-        if(currency == Currencies.GRS):
-            return 3
-        return 0.01

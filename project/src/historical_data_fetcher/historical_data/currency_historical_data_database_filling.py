@@ -1,5 +1,4 @@
 import datetime
-from time import sleep
 
 from src.data_scrapper.blockchain_explorer.blockchain_data_scrapper_factory import BlockChainDataScrapperFactory
 from src.data_scrapper.exchange_rate.exchange_rate_data_scrapper_factory import \
@@ -14,13 +13,12 @@ class CurrencyHistoricalDataDatabaseFilling:
     def __init__(self):
         self.db = DatabaseAccessor()
 
-    def fill_in_database_for_currency(self, currency, time_delta=datetime.timedelta(hours=1), sleep_time_blockchain=1, sleep_time_exchange_rate=1,
-                                      block_number=1, datetime_lower_limit_value=None):
-        self.__fill_in_blockchain_data(currency, time_delta, sleep_time_blockchain, block_number)
+    def fill_in_database_for_currency(self, currency, time_delta=datetime.timedelta(hours=1), block_number=1, datetime_lower_limit_value=None):
+        self.__fill_in_blockchain_data(currency, time_delta, block_number)
         self.__fill_in_exchange_rate_data(currency, time_delta, datetime_lower_limit_value=datetime_lower_limit_value)
         self.__fill_in_revenue_data(currency, datetime_lower_limit_value=datetime_lower_limit_value)
 
-    def __fill_in_blockchain_data(self, currency, time_delta, sleep_time_blockchain, block_number):
+    def __fill_in_blockchain_data(self, currency, time_delta, block_number):
         block_number = block_number if(currency.starting_block() < block_number) else currency.starting_block()
 
         data_scrapper = BlockChainDataScrapperFactory.getDataScrapper(currency)
@@ -32,7 +30,7 @@ class CurrencyHistoricalDataDatabaseFilling:
 
         while(True):
             print("\nBlock: " + str(block_number) + " for currency: " + str(currency))
-            data = data_scrapper.get_data({"block_number": [block_number]})
+            data = data_scrapper.get_data_with_sleep({"block_number": [block_number]})
             if(not data):
                 break
             current_date_time = data[0]["datetime"]
@@ -56,7 +54,6 @@ class CurrencyHistoricalDataDatabaseFilling:
                                                                    datetime_lower_limit, datetime_lower_limit + time_delta)
                 datetime_lower_limit += time_delta
             block_number += block_number_incrementation
-            sleep(sleep_time_blockchain)
 
     def __fill_in_exchange_rate_data(self, currency, time_delta, datetime_lower_limit_value=None):
         data_scrapper = ExchangeRateDataScrapperFactory.getDataScrapper(currency)

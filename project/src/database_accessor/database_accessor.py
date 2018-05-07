@@ -64,7 +64,7 @@ class DatabaseAccessor:
     def truncate_table(self, table_name):
         print("Truncating " + str(table_name))
         try:
-            self.cur.execute("TRUNCATE TABLE " + table_name)
+            self.cur.execute("TRUNCATE TABLE \"" + table_name + "\"")
             self.conn.commit()
         except (psycopg2.DatabaseError) as error:
             raise Exception(error)
@@ -76,7 +76,22 @@ class DatabaseAccessor:
 
         return self.__get_data_request(str(currency) + "_historical_data", conditions="datetime='" + str(most_recent_valid_row) + "'")[0]
 
+    def update_live_data(self, currency, graphic_card, profit_per_second, profit_per_day, ranking):
+        print("Updating live table for " + str(graphic_card) + " and currency " + str(currency) + " with profit " + str(profit_per_second) + " and ranking " + str(ranking))
+        self.__upsert_request(str(graphic_card) + "_live_data", ["currency", "profit_per_second", "profit_per_day", "ranking"], [currency, profit_per_second, profit_per_day, ranking], conflict_col=["currency"])
 
+    def create_graphic_card_table(self, graphic_card):
+        print("Creating graphic card table for " + str(graphic_card))
+        self.__create_table(str(graphic_card) + "_live_data", "id serial PRIMARY KEY, ranking INTEGER UNIQUE NOT NULL, currency VARCHAR (255) UNIQUE NOT NULL, profit_per_second DOUBLE PRECISION, profit_per_day DOUBLE PRECISION")
+
+
+
+    def __create_table(self, table_name, col_names):
+        try:
+            self.cur.execute("CREATE TABLE \"" + table_name + "\"(" + col_names + ")")
+            self.conn.commit()
+        except (psycopg2.DatabaseError) as error:
+            raise Exception(error)
 
     def __upsert_time_range_request(self, table_name, col_names, col_values, date_time, datetime_lower_limit, datetime_upper_limit):
         exist_condition = "datetime >= '" + str(datetime_lower_limit) + "' AND datetime < '" + str(datetime_upper_limit) + "'"

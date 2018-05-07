@@ -2,6 +2,7 @@ import datetime
 
 from src.currencies.currencies import Currencies
 from src.database_accessor.database_accessor import DatabaseAccessor
+from src.profit_logic.profit_calculation import ProfitCalculation
 from src.utils.utils import Utils
 from src.variables.variables import Variables
 
@@ -65,15 +66,12 @@ class CurrenciesGraphicCardsInfoPreProcessor:
             if(revenue_per_hashrate_per_second_in_dollar is None or last_date_time is None or new_date_time < last_date_time + self.time_unit):
                 continue
             last_date_time = Utils.truncate_datetime_limit(self.time_unit, new_date_time)
-            profit = self.__calculate_profit(revenue_per_hashrate_per_second_in_dollar, cost_per_hashrate_per_second_in_dollar, hashrate, self.time_unit, self.fees)
+            profit = ProfitCalculation.calculate_profit(revenue_per_hashrate_per_second_in_dollar, cost_per_hashrate_per_second_in_dollar, hashrate, self.time_unit, self.fees)
             profits.append(profit)
             date_time_values.append(last_date_time)
         profits_datetime = {"profits": profits, "datetimes": date_time_values}
 
         return profits_datetime
-
-    def __calculate_profit(self, revenue, cost, hashrate, time_unit=datetime.timedelta(days=1), fees=0.0):
-        return ((1 - fees) * revenue - cost) * hashrate * time_unit.total_seconds()
 
     def __get_cost_and_hashrate(self, algorithm_string, graphic_card_string):
         graphic_card_data = self.__get_graphic_card_data(algorithm_string, graphic_card_string)

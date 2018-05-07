@@ -19,10 +19,12 @@ class Currencies(Enum):
             return Algorithms.GROESTL
         elif(currency == Currencies.ETH or currency == Currencies.ETC):
             return Algorithms.ETHASH
-        elif (currency == Currencies.XMR or currency == Currencies.FCN or currency == Currencies.QCN):
+        elif (currency == Currencies.XMR):
             return Algorithms.CRYPTONIGHTV7
-        elif (currency == Currencies.BCN or currency == Currencies.BTG):
+        elif (currency == Currencies.BTG):
             return Algorithms.EQUIHASH
+        elif(currency == Currencies.BCN or currency == Currencies.FCN or currency == Currencies.QCN):
+            return Algorithms.CRYPTONIGHT
 
     def starting_block(self):
         if(self == Currencies.GRS or self == Currencies.ETH or self == Currencies.XMR or self == Currencies.BCN or self == Currencies.FCN

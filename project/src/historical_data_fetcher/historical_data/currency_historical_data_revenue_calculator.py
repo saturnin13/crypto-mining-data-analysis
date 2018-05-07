@@ -18,7 +18,10 @@ class HistoricalDataRevenueCalculator:
             usd_per_currency = row["usd_per_" + str(currency).lower()]
             if(reward is None or difficulty is None or usd_per_currency is None):
                 continue
-            revenue = reward * hashrate / (difficulty * currency.difficulty_one_target()) * revenue_unit.total_seconds() * usd_per_currency
+            revenue = self.get_currency_revenue(currency, reward, difficulty, usd_per_currency, revenue_unit=revenue_unit, hashrate=hashrate)
             revenues_and_datetime.append((revenue, row["datetime"]))
 
         return revenues_and_datetime
+
+    def get_currency_revenue(self, currency, reward, difficulty, usd_per_currency, revenue_unit=datetime.timedelta(seconds=1), hashrate=1):
+        return reward * hashrate / (difficulty * currency.difficulty_one_target()) * revenue_unit.total_seconds() * usd_per_currency

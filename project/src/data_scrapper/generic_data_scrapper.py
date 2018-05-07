@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from time import sleep
 
 from src.http_request.http_request_handling import HttpRequestHandling
 from src.regex.regex_pattern_matching import RegexPatternMatching
@@ -12,6 +13,13 @@ class GenericDataScrapper(ABC):
         self.regex = RegexPatternMatching()
         self.http = HttpRequestHandling()
         self.cache = {}
+
+    def get_data_with_sleep(self, ids={}):
+        sleep(self._get_sleep_time())
+        return self.get_data(ids)
+
+    def _get_sleep_time(self):
+        return 0.01
 
     def get_data(self, ids={}):
 
