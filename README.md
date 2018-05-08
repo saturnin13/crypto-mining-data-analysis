@@ -30,6 +30,7 @@ rename the column: ALTER TABLE "CURRENCY_historical_data" RENAME USD_per_GRS TO 
 
 # Finally  
 
-1/ Adjust time to avoid DDoS protection
+1/ Add the coinmarket api id of the currency in CoinmarketcapDataScrapper (https://api.coinmarketcap.com/v2/listings/)
+2/ Adjust time to avoid DDoS protection
 
   
