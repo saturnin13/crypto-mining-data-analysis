@@ -20,9 +20,9 @@ class LiveDataFetcher():
         self.highest_block_cache = {}
 
     def compute_live_profit(self, graphic_card):
+        print("Computing live profit for " + graphic_card)
         currencies = [item for item in Currencies]
         profits_per_second = []
-        print(graphic_card)
         for currency in currencies:
             revenue_per_second_per_hashrate = self.__calculate_live_revenue(currency)
             cost_per_second_per_hashrate = self.__calculate_live_cost(currency, graphic_card)
@@ -95,5 +95,5 @@ class LiveDataFetcher():
 
     def __get_graphic_card_info(self, currency, graphic_card):
         for row in self.graphic_card_data:
-            if(row["graphic_card"] == graphic_card.value and row["algorithm"] == Currencies.get_algorithm(currency).value):
+            if(row["graphic_card"] == graphic_card.value and row["algorithm"] == currency.get_algorithm().value):
                 return row

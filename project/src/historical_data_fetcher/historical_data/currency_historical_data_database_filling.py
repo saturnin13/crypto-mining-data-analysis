@@ -77,9 +77,10 @@ class CurrencyHistoricalDataDatabaseFilling:
                 datetime_lower_limit += time_delta
             i += 1
 
-    def __fill_in_revenue_data(self, currency, datetime_lower_limit_value=datetime.datetime(1970, 1, 1)):
+    def __fill_in_revenue_data(self, currency, datetime_lower_limit_value=None):
         revenue_calculator = HistoricalDataRevenueCalculator()
         revenues_and_datetime = revenue_calculator.get_currency_historic_revenue(currency)
+        datetime_lower_limit_value = datetime.datetime(1970, 1, 1) if datetime_lower_limit_value is None else datetime_lower_limit_value
         for row in revenues_and_datetime:
             revenue = row[0]
             date_time = row[1]

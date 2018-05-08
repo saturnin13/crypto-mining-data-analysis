@@ -73,7 +73,8 @@ class DatabaseAccessor:
         print("Getting the most recent block number for " + str(currency))
         conditions_string = "block_number IS NOT NULL AND usd_per_" + str(currency) + " IS NOT NULL AND revenue_per_second_per_hashrate_in_dollar IS NOT NULL"
         most_recent_valid_row = self.__get_data_request(str(currency) + "_historical_data", selection="MAX(datetime) as datetime",conditions=conditions_string)[0]["datetime"]
-
+        if(not most_recent_valid_row):
+            return None
         return self.__get_data_request(str(currency) + "_historical_data", conditions="datetime='" + str(most_recent_valid_row) + "'")[0]
 
     def update_live_data(self, currency, graphic_card, profit_per_second, profit_per_day, ranking):

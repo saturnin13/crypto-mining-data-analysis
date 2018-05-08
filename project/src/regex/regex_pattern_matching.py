@@ -1,5 +1,7 @@
 import regex
 
+from src.regex.constant_regex import ConstantRegex
+
 
 class RegexPatternMatching:
 

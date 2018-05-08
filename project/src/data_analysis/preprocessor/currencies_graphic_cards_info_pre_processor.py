@@ -53,7 +53,7 @@ class CurrenciesGraphicCardsInfoPreProcessor:
         currency_historical_data = list(filter(lambda x: x["datetime"] and x["datetime"] >= self.starting_datetime and x["datetime"] <= self.end_datetime, currency_historical_data))
         currency_historical_data = sorted(currency_historical_data, key=lambda x: x["datetime"])
 
-        cost_per_hashrate_per_second_in_dollar, hashrate = self.__get_cost_and_hashrate(Currencies.get_algorithm(currency).value, graphic_card.value)
+        cost_per_hashrate_per_second_in_dollar, hashrate = self.__get_cost_and_hashrate(currency.get_algorithm().value, graphic_card.value)
         if(not cost_per_hashrate_per_second_in_dollar or not hashrate):
             return None
 
