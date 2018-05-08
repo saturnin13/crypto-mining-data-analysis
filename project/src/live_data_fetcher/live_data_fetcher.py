@@ -16,6 +16,7 @@ class LiveDataFetcher():
         self.db = DatabaseAccessor()
         self.graphic_card_data = self.db.get_graphic_card_data()
         self.revenue_cache = {}
+        self.highest_block_cache = {}
 
     def compute_live_profit(self, graphic_card):
         currencies = [item for item in Currencies]
@@ -34,21 +35,29 @@ class LiveDataFetcher():
 
 
     def __calculate_live_revenue(self, currency):
-        if(currency in self.revenue_cache):
-            return self.revenue_cache[currency]
+        if(currency in self.revenue_cache and self.revenue_cache[currency][1] + datetime.timedelta(seconds=Variables.CURRENCY_LIVE_DATABASE_UPDATE_RATE / 1000) >  datetime.datetime.now()):
+            return self.revenue_cache[currency][0]
 
         live_price = float(CoinmarketcapDataScrapper().get_data({"currency": [currency]})[0]["price"])
 
-        most_recent_valid_row = self.db.get_most_recent_valid_row_currency_database(currency)
-        most_recent_block = self.__find_most_recent_block(currency, most_recent_valid_row["block_number"])
+        most_recent_valid_block = self.__get_most_recent_block(currency)
+        most_recent_block = self.__find_most_recent_block(currency, most_recent_valid_block)
+        self.highest_block_cache[currency] = most_recent_block["block_number"]
+
         live_reward = float(most_recent_block["reward"])
         live_difficulty = float(most_recent_block["difficulty"])
 
         revenue_calculator = HistoricalDataRevenueCalculator()
         revenue = revenue_calculator.get_currency_revenue(currency, live_reward, live_difficulty, live_price)
 
-        self.revenue_cache[currency] = revenue
+        self.revenue_cache[currency] = (revenue, datetime.datetime.now())
         return revenue
+
+    def __get_most_recent_block(self, currency):
+        if (currency not in self.highest_block_cache):
+            self.highest_block_cache[currency] = self.db.get_most_recent_valid_row_currency_database(currency)["block_number"]
+
+        return self.highest_block_cache[currency]
 
     def __find_most_recent_block(self, currency, block_number):
         data_scrapper = BlockChainDataScrapperFactory.getDataScrapper(currency)
