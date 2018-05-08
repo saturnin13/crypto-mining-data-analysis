@@ -19,7 +19,7 @@ class MinergateBlockchainDataScrapper(GenericBlockchainDataScrapper):
     def _get_regex_patterns(self, id):
         datetime_regex_pattern     = ",\"timestamp\":\"?(?P<datetime>"    + ConstantRegex.DECIMAL_NUMBER + ")\"?,.*\"transactions\""
         difficulty_regex_pattern   = ",\"difficulty\":\"?(?P<difficulty>" + ConstantRegex.DECIMAL_NUMBER + ")\"?,.*\"transactions\""
-        reward_regex_pattern = ",\"reward\":\"?(?P<reward>"   + ConstantRegex.DECIMAL_NUMBER + ")\"?,.*\"transactions\""
+        reward_regex_pattern       = ",\"reward\":\"?(?P<reward>"         + ConstantRegex.DECIMAL_NUMBER + ")\"?,.*\"transactions\""
         return [datetime_regex_pattern, difficulty_regex_pattern, reward_regex_pattern]
 
     def _get_primary_url(self, id):

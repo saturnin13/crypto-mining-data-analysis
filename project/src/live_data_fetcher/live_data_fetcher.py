@@ -73,6 +73,7 @@ class LiveDataFetcher():
                 speed = int(speed * 2)
             block_number += speed
         max_block_number = self.__find_max_block_number(lower_bound, upper_bound, currency)
+
         return data_scrapper.get_data({"block_number": [max_block_number]})[0]
 
     def __find_max_block_number(self, lower_bound, upper_bound, currency):
@@ -97,3 +98,6 @@ class LiveDataFetcher():
         for row in self.graphic_card_data:
             if(row["graphic_card"] == graphic_card.value and row["algorithm"] == currency.get_algorithm().value):
                 return row
+
+data_scrapper = BlockChainDataScrapperFactory.getDataScrapper(Currencies.ETC)
+print(data_scrapper.get_data({"block_number": [5821889]})[0])
