@@ -22,7 +22,7 @@ class GenericDataScrapper(ABC):
         return 0.01
 
     def get_data(self, ids={}):
-        print("Getting data for ids: " + ids)
+        print("Getting data for ids: " + str(ids))
 
         ids = self.__initialise_input(ids)
         self.__check_input(ids)
@@ -31,7 +31,7 @@ class GenericDataScrapper(ABC):
 
         result = self._post_processing_all_result(result)
 
-        print("Getting data obtained result: " + result)
+        print("Getting data obtained result: " + str(result))
         return result
 
     def __initialise_input(self, ids):
