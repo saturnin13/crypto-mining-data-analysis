@@ -1,1 +1,1 @@
-web: python ./project/job_scheduling.py
+worker: python ./project/job_scheduling.py
