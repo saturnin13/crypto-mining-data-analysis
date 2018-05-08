@@ -1,6 +1,7 @@
 import datetime
 
 from src.database_accessor.database_accessor import DatabaseAccessor
+from src.profit_logic.cost_calculation import CostCalculation
 from src.variables.variables import Variables
 
 
@@ -18,7 +19,7 @@ class GpuStatisticsCostCalculator:
             hash_per_second = row["hashrate"]
             if(watt is None or hash_per_second is None):
                 continue
-            cost =  1 / (1000 * 3600) * (watt / hash_per_second) * cost_unit.total_seconds()
+            cost =  CostCalculation.cost_calculation(watt, hash_per_second, cost_unit=cost_unit)
             current_cost["cost"] = cost
             current_cost["algorithm"] = row["algorithm"]
             current_cost["graphic_card"] = row["graphic_card"]

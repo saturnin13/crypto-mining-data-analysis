@@ -7,6 +7,7 @@ from src.graphic_cards.graphic_cards import GraphicCards
 from src.historical_data_fetcher.historical_data.currency_historical_data_revenue_calculator import HistoricalDataRevenueCalculator
 from src.currencies.currencies import Currencies
 from src.profit_logic.profit_calculation import ProfitCalculation
+from src.profit_logic.revenue_calculation import RevenueCalculation
 from src.variables.variables import Variables
 
 
@@ -47,8 +48,7 @@ class LiveDataFetcher():
         live_reward = float(most_recent_block["reward"])
         live_difficulty = float(most_recent_block["difficulty"])
 
-        revenue_calculator = HistoricalDataRevenueCalculator()
-        revenue = revenue_calculator.get_currency_revenue(currency, live_reward, live_difficulty, live_price)
+        revenue = RevenueCalculation.calculate_revenue(currency, live_reward, live_difficulty, live_price)
 
         self.revenue_cache[currency] = (revenue, datetime.datetime.now())
         return revenue
