@@ -20,7 +20,7 @@ class LiveDataFetcher():
         self.highest_block_cache = {}
 
     def compute_live_profit(self, graphic_card):
-        print("Computing live profit for " + graphic_card)
+        print("Computing live profit for " + str(graphic_card))
         currencies = [item for item in Currencies]
         profits_per_second = []
         for currency in currencies:
