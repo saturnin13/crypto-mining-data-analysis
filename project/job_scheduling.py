@@ -14,7 +14,7 @@ class JobScheduling():
         self.currencies_database_interactions = CurrenciesDatabaseInteractions()
         self.live_data_filling = LiveDataTableFilling()
         threading.Thread(target=self.recurrent_update_gpu).start()
-        threading.Thread(target=self.recurrgitent_update_historical_data).start()
+        threading.Thread(target=self.recurrent_update_historical_data).start()
         threading.Thread(target=self.recurrent_update_live_data).start()
 
     def recurrent_update_gpu(self):
