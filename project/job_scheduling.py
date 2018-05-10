@@ -1,3 +1,4 @@
+import multiprocessing
 import threading
 import time
 
@@ -28,9 +29,12 @@ class JobScheduling():
 
     def __launch_periodically(self, func, timeout, action_msg):
         print("\nSTARTING " + action_msg.upper() + "\n")
-        thread = threading.Thread(target=func)
-        thread.start()
-        thread.join()
+        proc = multiprocessing.Process(target=func)
+        proc.start()
+        proc.join()
+        # thread = threading.Thread(target=func)
+        # thread.start()
+        # thread.join()
         print("\nFINISHED " + action_msg.upper() + "\n")
         time.sleep(timeout)
         self.__launch_periodically(func, timeout, action_msg)
