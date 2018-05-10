@@ -6,11 +6,9 @@ from src.variables.variables import Variables
 
 
 class GpuStatisticsCostCalculator:
-    def __init__(self):
-        self.db = DatabaseAccessor()
 
     def get_currency_graphic_card_costs(self, cost_unit=datetime.timedelta(seconds=1)):
-        currency_graphic_card_historical_data = self.db.get_graphic_card_data()
+        currency_graphic_card_historical_data = DatabaseAccessor.get_graphic_card_data()
 
         cost_algorithm_and_graphic_card = []
         for row in currency_graphic_card_historical_data:

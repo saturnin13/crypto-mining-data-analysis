@@ -10,7 +10,6 @@ from src.variables.variables import Variables
 class CurrenciesGraphicCardsInfoPreProcessor:
     def __init__(self, currencies, graphic_cards, starting_datetime=datetime.datetime(2009, 1, 1), end_datetime=datetime.datetime.now(), fees=0.0,
                  time_unit=datetime.timedelta(days=1), price_in_kwh=Variables.ELECTRICITY_COST):
-        self.db = DatabaseAccessor()
         self.cache = {}
 
         self.currencies = currencies
@@ -83,12 +82,12 @@ class CurrenciesGraphicCardsInfoPreProcessor:
 
     def __get_graphic_card_data(self, algorithm_string, graphic_card_string):
         if("graphic_card_data" not in self.cache):
-            self.cache["graphic_card_data"] = self.db.get_graphic_card_data()
+            self.cache["graphic_card_data"] = DatabaseAccessor.get_graphic_card_data()
         graphic_card_data = self.cache["graphic_card_data"]
 
         return list(filter(lambda item: item["algorithm"] == algorithm_string and item["graphic_card"] == graphic_card_string, graphic_card_data))
 
     def __get_currency_historical_data(self, currency):
         if ((currency) not in self.cache):
-            self.cache[(currency)] = self.db.get_currency_historical_data(currency)
+            self.cache[(currency)] = DatabaseAccessor.get_currency_historical_data(currency)
         return self.cache[(currency)]

@@ -5,11 +5,9 @@ from src.profit_logic.revenue_calculation import RevenueCalculation
 
 
 class HistoricalDataRevenueCalculator:
-    def __init__(self):
-        self.db = DatabaseAccessor()
 
     def get_currency_historic_revenue(self, currency, revenue_unit=datetime.timedelta(seconds=1), hashrate=1):
-        currency_historical_data = self.db.get_currency_historical_data(currency)
+        currency_historical_data = DatabaseAccessor.get_currency_historical_data(currency)
         currency_historical_data.sort(key=lambda x: x["datetime"])
 
         revenues_and_datetime = []

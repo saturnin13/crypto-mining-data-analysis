@@ -38,4 +38,4 @@ class CoinmarketcapDataScrapper(GenericLiveDataScrapper):
         elif (currency == Currencies.UBQ):
             return 588
         else:
-            raise Exception("No id for coinmarketcap for currency: " + currency)
+            raise Exception("No id for coinmarketcap for currency: " + str(currency))

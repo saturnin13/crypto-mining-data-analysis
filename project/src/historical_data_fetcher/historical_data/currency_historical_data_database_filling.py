@@ -10,8 +10,6 @@ from src.utils.utils import Utils
 
 
 class CurrencyHistoricalDataDatabaseFilling:
-    def __init__(self):
-        self.db = DatabaseAccessor()
 
     def fill_in_database_for_currency(self, currency, time_delta=datetime.timedelta(hours=1), block_number=1, datetime_lower_limit_value=None):
         self.__fill_in_blockchain_data(currency, time_delta, block_number)
@@ -25,6 +23,9 @@ class CurrencyHistoricalDataDatabaseFilling:
         highest_block_under_datetime_range = -1
         block_number_incrementation = 1
         data = data_scrapper.get_data({"block_number": [block_number]})
+        if(not data):
+            print("Could not find the initial block for " + str(currency) + " and block number " + str(block_number) + ", exiting the __fill_in_blockchain_data function")
+            return
         current_date_time = data[0]["datetime"]
         datetime_lower_limit = Utils.truncate_datetime_limit(time_delta, current_date_time)
 
@@ -49,7 +50,7 @@ class CurrencyHistoricalDataDatabaseFilling:
                 print(Colors.WARNING + "Processing block " + str(block_number) + ", retrieving the data" + Colors.ENDC)
                 current_reward = data[0]["reward"]
                 current_difficulty = data[0]["difficulty"]
-                self.db.upsert_currency_blockchain_historical_data(currency, current_reward, current_difficulty, block_number,
+                DatabaseAccessor.upsert_currency_blockchain_historical_data(currency, current_reward, current_difficulty, block_number,
                                                                    Utils.truncate_datetime_limit(time_delta, current_date_time),
                                                                    datetime_lower_limit, datetime_lower_limit + time_delta)
                 datetime_lower_limit += time_delta
@@ -58,6 +59,8 @@ class CurrencyHistoricalDataDatabaseFilling:
     def __fill_in_exchange_rate_data(self, currency, time_delta, datetime_lower_limit_value=None):
         data_scrapper = ExchangeRateDataScrapperFactory.getDataScrapper(currency)
         closes_exchange_rates = data_scrapper.get_data()
+        if(not closes_exchange_rates):
+            print("Could not find the closes exchange rate for " + str(currency) + ", exiting the __fill_in_blockchain_data function")
         datetime_lower_limit_value = closes_exchange_rates[0]["datetime"] if datetime_lower_limit_value is None else datetime_lower_limit_value
         datetime_lower_limit = Utils.truncate_datetime_limit(time_delta, datetime_lower_limit_value)
 
@@ -72,7 +75,7 @@ class CurrencyHistoricalDataDatabaseFilling:
                 i -= 1
             else:
                 close_value = closes_exchange_rates[i]["close"]
-                self.db.upsert_currency_exchange_rate_historical_data(currency, close_value, Utils.truncate_datetime_limit(time_delta, current_date_time),
+                DatabaseAccessor.upsert_currency_exchange_rate_historical_data(currency, close_value, Utils.truncate_datetime_limit(time_delta, current_date_time),
                                                                       datetime_lower_limit, datetime_lower_limit + time_delta)
                 datetime_lower_limit += time_delta
             i += 1
@@ -85,7 +88,7 @@ class CurrencyHistoricalDataDatabaseFilling:
             revenue = row[0]
             date_time = row[1]
             if(date_time >= datetime_lower_limit_value):
-                self.db.update_revenue_historical_data_currrencies(currency, revenue, date_time)
+                DatabaseAccessor.update_revenue_historical_data_currrencies(currency, revenue, date_time)
 
 
     def __check_time_limit_frame(self, current_date_time, time_limit, time_delta):
