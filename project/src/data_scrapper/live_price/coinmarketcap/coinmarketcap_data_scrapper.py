@@ -37,5 +37,9 @@ class CoinmarketcapDataScrapper(GenericLiveDataScrapper):
             return 1070
         elif (currency == Currencies.UBQ):
             return 588
+        elif(currency == Currencies.ZEC):
+            return 1437
+        elif(currency == Currencies.ZCL):
+            return 1447
         else:
             raise Exception("No id for coinmarketcap for currency: " + str(currency))

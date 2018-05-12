@@ -12,7 +12,7 @@ CREATE TABLE "GTX_1080_TI_live_data"(id serial PRIMARY KEY, ranking INTEGER UNIQ
 ## To add a new currency historical data fetcher
 # Add new table for historical data
 create a new table: CREATE TABLE "CURRENCY_historical_data" (LIKE "GRS_historical_data" INCLUDING DEFAULTS INCLUDING CONSTRAINTS INCLUDING INDEXES);
-rename the column: ALTER TABLE "CURRENCY_historical_data" RENAME USD_per_GRS TO USD_per_XMR;    
+rename the column: ALTER TABLE "CURRENCY_historical_data" RENAME USD_per_GRS TO USD_per_CURRENCY;      
 
 
 # Create a block chain data scrapper
@@ -20,7 +20,8 @@ rename the column: ALTER TABLE "CURRENCY_historical_data" RENAME USD_per_GRS TO 
 2/ create a class extending GenericBlockchainDataScrapper  
 3/ Override the abstract methods  
 4/ Add the algorithm to Algorithms class and the currency to Currencies class (as well as filling the 3 functions in currency 
-(use whatomine and coinmarketwarz to calculate difficultyone target (reward * hashrate / (difficulty * currency.difficulty_one_target()) * revenue_unit.total_seconds() * usd_per_currency)))  
+(use whatomine and coinmarketwarz to calculate difficultyone target 
+(reward * hashrate / (difficulty * currency.difficulty_one_target()) * revenue_unit.total_seconds() * usd_per_currency)))  
 5/ Add the new class to the BlockChainDataScrapperFactory  
   
 # Create an exchange rate data scrapper

@@ -14,9 +14,9 @@ class JobScheduling():
         self.gpu_statistics_database_interactions = GpuStatisticsDatabaseInteractions()
         self.currencies_database_interactions = CurrenciesDatabaseInteractions()
         self.live_data_filling = LiveDataTableFilling()
-        # threading.Thread(target=self.recurrent_update_gpu).start()
+        threading.Thread(target=self.recurrent_update_gpu).start()
         threading.Thread(target=self.recurrent_update_historical_data).start()
-        # threading.Thread(target=self.recurrent_update_live_data).start()
+        threading.Thread(target=self.recurrent_update_live_data).start()
 
     def recurrent_update_gpu(self):
         self.__launch_periodically(self.gpu_statistics_database_interactions.update, Variables.GPU_STATISTICS_DATABASE_UPDATE_RATE / 1000, "updating gpu data")
