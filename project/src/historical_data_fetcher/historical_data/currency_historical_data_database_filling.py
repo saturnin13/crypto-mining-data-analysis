@@ -48,6 +48,7 @@ class CurrencyHistoricalDataDatabaseFilling:
                 block_number_incrementation = max(int(0.8 * block_number_incrementation), 1)
             else:
                 print(Colors.WARNING + "Processing block " + str(block_number) + ", retrieving the data" + Colors.ENDC)
+                highest_block_under_datetime_range = block_number if block_number > highest_block_under_datetime_range else highest_block_under_datetime_range
                 current_reward = data[0]["reward"]
                 current_difficulty = data[0]["difficulty"]
                 DatabaseAccessor.upsert_currency_blockchain_historical_data(currency, current_reward, current_difficulty, block_number,

@@ -5,7 +5,7 @@ from src.regex.constant_regex import ConstantRegex
 from src.regex.regex_pattern_matching import RegexPatternMatching
 
 
-class ZCLCBlockchainDataScrapper(GenericBlockchainDataScrapper):
+class BTCPBlockchainDataScrapper(GenericBlockchainDataScrapper):
 
     def _get_regex_patterns(self, id):
         datetime_regex_pattern = ",\"time\":(?P<datetime>" + ConstantRegex.NUMBER + "),\""
@@ -14,13 +14,13 @@ class ZCLCBlockchainDataScrapper(GenericBlockchainDataScrapper):
         return [reward_regex_pattern, difficulty_regex_pattern, datetime_regex_pattern]
 
     def _get_primary_url(self, id):
-        return "http://explorer.zclmine.pro/insight-api-zcash/block-index/" + str(id["block_number"])
+        return "https://explorer.btcprivate.org/api/block-index/" + str(id["block_number"])
 
     def _get_auxiliary_urls(self, primary_content, id):
         hash = self.__find_hash(primary_content)
         if (hash == None):
             return None
-        return ["http://explorer.zclmine.pro/insight-api-zcash/block/" + hash]
+        return ["https://explorer.btcprivate.org/api/block/" + hash]
 
     def _post_processing_single_result(self, id, result):
         result = super()._post_processing_single_result(id, result)

@@ -21,7 +21,7 @@ rename the column: ALTER TABLE "CURRENCY_historical_data" RENAME USD_per_GRS TO 
 3/ Override the abstract methods  
 4/ Add the algorithm to Algorithms class and the currency to Currencies class (as well as filling the 3 functions in currency 
 (use whatomine and coinmarketwarz to calculate difficultyone target 
-(reward * hashrate / (difficulty * currency.difficulty_one_target()) * revenue_unit.total_seconds() * usd_per_currency)))  
+( reward * hashrate / (difficulty * 1) * 3600 * 1 )))  
 5/ Add the new class to the BlockChainDataScrapperFactory  
   
 # Create an exchange rate data scrapper
