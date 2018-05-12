@@ -5,7 +5,7 @@ from requests.adapters import HTTPAdapter
 class HttpRequestHandling:
     def __init__(self):
         self.session = requests.Session()
-        adapter = HTTPAdapter(max_retries=1)
+        adapter = HTTPAdapter(max_retries=6)
         self.session.max_redirects = 50
         self.session.mount('http://', adapter)
         self.session.mount('https://', adapter)

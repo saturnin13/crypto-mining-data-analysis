@@ -84,11 +84,17 @@ class DatabaseAccessor:
         print("Updating live table for " + str(graphic_card) + " and currency " + str(currency) + " with profit " + str(profit_per_second) + " and ranking " + str(ranking))
         DatabaseAccessor.__upsert_request(str(graphic_card) + "_live_data", ["currency", "profit_per_second", "profit_per_day", "ranking"],
                                           [currency, profit_per_second, profit_per_day, ranking], conflict_col=["currency"])
-
     @staticmethod
     def create_graphic_card_table(graphic_card):
         print("Creating graphic card table for " + str(graphic_card))
         DatabaseAccessor.__create_table(str(graphic_card) + "_live_data", "id serial PRIMARY KEY, ranking INTEGER UNIQUE NOT NULL, currency VARCHAR (255) UNIQUE NOT NULL, profit_per_second DOUBLE PRECISION, profit_per_day DOUBLE PRECISION")
+
+    @staticmethod
+    def update_release_date_gpu_statistics_data(graphic_card, release_date):
+        print("Updating graphic_card (" + str(graphic_card) + ") with release date (" + str(release_date) + ")")
+        DatabaseAccessor.__update_request("gpu_statistics", ["release_date"], [release_date], DatabaseAccessor.__convert_where_clause(["graphic_card"], [str(graphic_card)]))
+
+
 
     @staticmethod
     def __create_table(table_name, col_names):
@@ -96,15 +102,6 @@ class DatabaseAccessor:
             with conn, conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curr:
                 curr.execute("CREATE TABLE \"" + table_name + "\"(" + col_names + ")")
                 conn.commit()
-
-    @staticmethod
-    def __upsert_time_range_request(table_name, col_names, col_values, date_time, datetime_lower_limit, datetime_upper_limit):
-        exist_condition = "datetime >= '" + str(datetime_lower_limit) + "' AND datetime < '" + str(datetime_upper_limit) + "'"
-        col_names.append("datetime")
-        col_values.append(date_time)
-        DatabaseAccessor.__upsert_request(table_name, col_names, col_values, exist_condition, conflict_update=False)
-        update_conditions = "datetime >= '" + str(datetime_lower_limit) + "' AND datetime < '" + str(datetime_upper_limit) + "'"
-        DatabaseAccessor.__update_request(table_name, col_names, col_values, update_conditions)
 
     @staticmethod
     def __get_data_request(table_name, selection="*", conditions=None):
@@ -117,6 +114,15 @@ class DatabaseAccessor:
                 result = curr.fetchall()
 
                 return result
+
+    @staticmethod
+    def __upsert_time_range_request(table_name, col_names, col_values, date_time, datetime_lower_limit, datetime_upper_limit):
+        exist_condition = "datetime >= '" + str(datetime_lower_limit) + "' AND datetime < '" + str(datetime_upper_limit) + "'"
+        col_names.append("datetime")
+        col_values.append(date_time)
+        DatabaseAccessor.__upsert_request(table_name, col_names, col_values, exist_condition, conflict_update=False)
+        update_conditions = "datetime >= '" + str(datetime_lower_limit) + "' AND datetime < '" + str(datetime_upper_limit) + "'"
+        DatabaseAccessor.__update_request(table_name, col_names, col_values, update_conditions)
 
     @staticmethod
     def __upsert_request(table_name, col_names, col_values, exist_condition="False", conflict_update=True, conflict_col=None):
@@ -146,12 +152,12 @@ class DatabaseAccessor:
                 conn.commit()
 
     @staticmethod
-    def __convert_select_clause(names, apostrophe=False):
-        return DatabaseAccessor.__concat_lists(",", names, put_apostrophe=apostrophe)
-
-    @staticmethod
     def __convert_set_clause(names, values):
         return DatabaseAccessor.__concat_lists(",", names, values=values)
+
+    @staticmethod
+    def __convert_select_clause(names, apostrophe=False):
+        return DatabaseAccessor.__concat_lists(",", names, put_apostrophe=apostrophe)
 
     @staticmethod
     def __convert_where_clause(names, values):
@@ -178,14 +184,14 @@ class DatabaseAccessor:
         return result
 
     @staticmethod
-    def __historical_data_table_name(currency):
-        return currency.value.upper() + "_historical_data"
-
-
-    @staticmethod
     def __get_connection():
         try:
             return psycopg2.connect("postgres://lmxhpacdmmgnfr:0f78fab407cdf1699b50b2fec55a742f65ab1a5cfbbb2c166394a09eb6acf652@ec2-54-247-89-189.eu-west-1.compute.amazonaws.com:5432/denvqvnkc5gm9j")
         except:
             raise Exception("Unable to connect to the database")
+
+
+    @staticmethod
+    def __historical_data_table_name(currency):
+        return currency.value.upper() + "_historical_data"
 

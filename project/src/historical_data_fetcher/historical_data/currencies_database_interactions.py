@@ -22,7 +22,7 @@ class CurrenciesDatabaseInteractions:
             if(most_recent_valid_row):
                 self.__load_helper(currency, time_delta=time_delta, block_number=most_recent_valid_row["block_number"], datetime_lower_limit_value=most_recent_valid_row["datetime"])
             else:
-                self.load(currencies, time_delta)
+                self.load(currency, time_delta)
 
     def clean_and_reload(self, currencies, time_delta=datetime.timedelta(days=1)):
         if (type(currencies) != list):

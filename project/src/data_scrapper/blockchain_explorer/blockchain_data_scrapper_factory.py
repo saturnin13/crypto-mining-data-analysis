@@ -8,6 +8,7 @@ from src.data_scrapper.blockchain_explorer.minergate.ETC_blockchain_data_scrappe
 from src.data_scrapper.blockchain_explorer.minergate.FCN_blockchain_data_scrapper import FCNBlockchainDataScrapper
 from src.data_scrapper.blockchain_explorer.minergate.QCN_blockchain_data_scrapper import QCNBlockchainDataScrapper
 from src.data_scrapper.blockchain_explorer.minergate.XMR_blockchain_data_scrapper import XMRBlockchainDataScrapper
+from src.data_scrapper.blockchain_explorer.minergate.ZEC_blockchain_data_scrapper import ZECBlockchainDataScrapper
 from src.data_scrapper.blockchain_explorer.ubiqscan.UBQ_blockchain_data_scrapper import UBQBlockchainDataScrapper
 
 
@@ -36,3 +37,5 @@ class BlockChainDataScrapperFactory:
             return EXPBlockchainDataScrapper()
         elif (currency == Currencies.UBQ):
             return UBQBlockchainDataScrapper()
+        elif(currency == Currencies.ZEC):
+            return ZECBlockchainDataScrapper()

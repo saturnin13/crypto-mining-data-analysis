@@ -19,15 +19,21 @@ class GraphicCardsInfoPreProcessor:
         print("Preprocessing information per graphic cards")
         info = []
 
-        for graphic_card in self.graphic_cards:
+        present_graphic_cards = list(set([item["graphic_card"] for item in currency_graphic_card_info]))
+        for graphic_card in present_graphic_cards:
             current = {}
             filtered_list = list(filter(lambda x: x["graphic_card"] == graphic_card, currency_graphic_card_info))
             current["max_profits_datetime"] = self.__calculate_max_profits_datetime(filtered_list)
             current["total_max_profit"] = self.__calculate_total_max_profit(current["max_profits_datetime"])
+            current["percentage_increase_profit"] = self.__calculate_percentage_increase_profit(currency_graphic_card_info, graphic_card, current["total_max_profit"])
             current["graphic_card"] = graphic_card
             info.append(current)
 
         return info
+
+    def __calculate_percentage_increase_profit(self, currency_graphic_card_info, graphic_card, total_max_profit):
+        currency_graphic_card_info_filtered = [item["total_profit_extrapolated"] for item in currency_graphic_card_info if item["graphic_card"] == graphic_card]
+        return (total_max_profit / max(currency_graphic_card_info_filtered) * 100) - 100
 
     def __calculate_max_profits_datetime(self, filtered_list):
         profits = []
@@ -55,7 +61,9 @@ class GraphicCardsInfoPreProcessor:
             result["datetimes"].append(datetimes[max_index])
             result["currencies"].append(currencies[max_index])
 
-        result["datetimes"], result["profits"], result["currencies"] = zip(*sorted(zip(result["datetimes"], result["profits"],result["currencies"]), key=lambda x: x[0]))
+        datetimes_profits_currencies = list(zip(*sorted(zip(result["datetimes"], result["profits"], result["currencies"]), key=lambda x: x[0])))
+        if(datetimes_profits_currencies):
+            result["datetimes"], result["profits"], result["currencies"] = datetimes_profits_currencies
 
         return result
 

@@ -9,6 +9,7 @@ from src.data_scrapper.exchange_rate.coinmarketcap.GRS_exchange_rate_data_scrapp
 from src.data_scrapper.exchange_rate.coinmarketcap.QCN_exchange_rate_data_scrapper import QCNExchangeRateDataScrapper
 from src.data_scrapper.exchange_rate.coinmarketcap.UBQ_exchange_rate_data_scrapper import UBQExchangeRateDataScrapper
 from src.data_scrapper.exchange_rate.coinmarketcap.XMR_exchange_rate_data_scrapper import XMRExchangeRateDataScrapper
+from src.data_scrapper.exchange_rate.coinmarketcap.ZEC_exchange_rate_data_scrapper import ZECExchangeRateDataScrapper
 
 
 class ExchangeRateDataScrapperFactory:
@@ -33,3 +34,5 @@ class ExchangeRateDataScrapperFactory:
             return EXPExchangeRateDataScrapper()
         elif (currency == Currencies.UBQ):
             return UBQExchangeRateDataScrapper()
+        elif(currency == Currencies.ZEC):
+            return ZECExchangeRateDataScrapper()

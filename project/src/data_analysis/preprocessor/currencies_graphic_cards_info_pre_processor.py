@@ -9,7 +9,8 @@ from src.variables.variables import Variables
 
 class CurrenciesGraphicCardsInfoPreProcessor:
     def __init__(self, currencies, graphic_cards, starting_datetime=datetime.datetime(2009, 1, 1), end_datetime=datetime.datetime.now(), fees=0.0,
-                 time_unit=datetime.timedelta(days=1), price_in_kwh=Variables.ELECTRICITY_COST):
+                 time_unit=datetime.timedelta(days=1), price_in_kwh=Variables.ELECTRICITY_COST, only_currency_present_at_start_time=False,
+                 only_graphic_cards_present_at_start_time=False):
         self.cache = {}
 
         self.currencies = currencies
@@ -18,6 +19,8 @@ class CurrenciesGraphicCardsInfoPreProcessor:
         self.end_datetime = end_datetime
         self.fees = fees
         self.time_unit = time_unit
+        self.only_currency_present_at_start_time = only_currency_present_at_start_time
+        self.only_graphic_cards_present_at_start_time = only_graphic_cards_present_at_start_time
 
         self.price_in_kwh = price_in_kwh
 
@@ -32,12 +35,18 @@ class CurrenciesGraphicCardsInfoPreProcessor:
                 current["profits_datetime"] = self.__calculate_profits_datetime(currency, graphic_card)
                 if(current["profits_datetime"]):
                     current["average_profit"] = self.__calculate_average_profit(current["profits_datetime"]["profits"])
+                    current["total_profit_extrapolated"] = self.__calculate_total_profit_extrapolated(current["average_profit"])
                     current["instant_profit"] = self.__calculate_instant_profit(current["profits_datetime"])
                     current["currency"]       = currency
                     current["graphic_card"]   = graphic_card
-                    info.append(current)
+                    if(not self.only_currency_present_at_start_time or self.__currency_present_at_start_time(current["profits_datetime"]["datetimes"])):
+                        info.append(current)
 
         return info
+
+    def __calculate_total_profit_extrapolated(self, average_profit):
+        number_of_time_unit = int((self.end_datetime.timestamp() - self.starting_datetime.timestamp()) / self.time_unit.total_seconds())
+        return average_profit * number_of_time_unit
 
     def __calculate_instant_profit(self, profits_datetime):
         date_time = profits_datetime["datetimes"]
@@ -85,9 +94,19 @@ class CurrenciesGraphicCardsInfoPreProcessor:
             self.cache["graphic_card_data"] = DatabaseAccessor.get_graphic_card_data()
         graphic_card_data = self.cache["graphic_card_data"]
 
+        for row in graphic_card_data:
+            if(self.only_graphic_cards_present_at_start_time and not self.__graphic_card_present_at_start_time(row)):
+                graphic_card_data.remove(row)
+
         return list(filter(lambda item: item["algorithm"] == algorithm_string and item["graphic_card"] == graphic_card_string, graphic_card_data))
 
     def __get_currency_historical_data(self, currency):
         if ((currency) not in self.cache):
             self.cache[(currency)] = DatabaseAccessor.get_currency_historical_data(currency)
         return self.cache[(currency)]
+
+    def __currency_present_at_start_time(self, datetimes):
+        return min(datetimes) <= self.starting_datetime
+
+    def __graphic_card_present_at_start_time(self, graphic_card_data):
+        return graphic_card_data["release_date"] <= self.starting_datetime

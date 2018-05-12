@@ -106,9 +106,7 @@ class GraphManager:
             dx = np.ones(len(position_x)) * size_bar
             dy = np.ones(len(position_x)) * size_bar
 
-            random_color = GraphManager.__random_color()
-
-            ax1.bar3d(position_x, position_y, position_z, dx, dy, dz, color=random_color, alpha=0.8)
+            ax1.bar3d(position_x, position_y, position_z, dx, dy, dz, alpha=0.8)
 
         ax1.set_zlim3d(0)
 
@@ -136,23 +134,29 @@ class GraphManager:
         return result
 
     @staticmethod
-    def plot_histogram(X, Y, x_label=None, y_label=None, title=None, labels=None):
+    def plot_histogram(X, Ys, labels=None, bar_ids=None, x_label=None, y_label=None, title=None, color_per_bar=False):
+        if (type(Ys) != list):
+            Ys = [Ys]
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        y_pos = Y if labels else np.arange(len(Y))
+        width = 1. / (len(Ys) + 1)
 
-        bar_list = ax.bar(y_pos, X, align='center', alpha=0.5)
+        for i, Y in enumerate(Ys):
+            x_pos = X if bar_ids else np.arange(len(X))
+            current_label = labels[i] if labels else ""
+            x_final_position = x_pos if bar_ids else (x_pos + i * width) - 0.5 + width
+            bar_list = ax.bar(x_final_position, Y, width, align='center', label=current_label)
 
-        for i in range(len(bar_list)):
-            color = GraphManager.__random_color(labels[i]) if labels else GraphManager.__random_color()
-            bar_list[i].set_color(color)
-
-        if(labels):
-            unique_labels, _ = zip(*sorted(((e, labels.count(e)) for e in set(labels)), key=lambda x: x[1], reverse=True))
+        if(color_per_bar):
+            for i in range(len(bar_list)):
+                color = GraphManager.__random_color(bar_ids[i])
+                bar_list[i].set_color(color)
+            unique_labels, _ = zip(*sorted(((e, bar_ids.count(e)) for e in set(bar_ids)), key=lambda x: x[1], reverse=True))
             plt.legend([plt.Line2D((0, 1), (0, 0), color=GraphManager.__random_color(label)) for label in unique_labels], unique_labels, loc="best")
         else:
-            plt.xticks(y_pos, Y)
+            plt.legend(loc="best")
+            plt.xticks(x_pos, X)
             plt.xticks(rotation=35)
 
         if (x_label):

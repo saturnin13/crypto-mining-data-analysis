@@ -3,5 +3,5 @@ from src.data_scrapper.blockchain_explorer.minergate.minergate_blockchain_data_s
 
 class ZECBlockchainDataScrapper(MinergateBlockchainDataScrapper):
 
-    _get_minergate_url_identifier = "mro"
-    _divide_reward = 1000000000000
+    _get_minergate_url_identifier = "zec"
+    _divide_reward_value = 100000000
