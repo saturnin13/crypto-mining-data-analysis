@@ -22,8 +22,9 @@ class DataAnalyser:
 
         preprocessor = InfoPreProcessor(self.currencies, self.graphic_cards, starting_datetime, end_datetime, fees, time_unit, price_in_kwh, only_currency_present_at_start_time,
                                         only_graphic_cards_present_at_start_time)
-        self.currencies_graphic_cards_info = preprocessor.currencies_graphic_cards_pre_process()
-        self.graphic_cards_info = preprocessor.graphic_cards_pre_process(self.currencies_graphic_cards_info)
+        all_currencies_graphic_cards_info = preprocessor.currencies_graphic_cards_pre_process()
+        self.currencies_graphic_cards_info = all_currencies_graphic_cards_info[1] if only_currency_present_at_start_time else all_currencies_graphic_cards_info[0]
+        self.graphic_cards_info = preprocessor.graphic_cards_pre_process(all_currencies_graphic_cards_info)
         self.general_info = preprocessor.general_pre_process(self.currencies_graphic_cards_info, self.graphic_cards_info)
 
     def load_histogram_percentage_increase_profit_graphic_cards(self):

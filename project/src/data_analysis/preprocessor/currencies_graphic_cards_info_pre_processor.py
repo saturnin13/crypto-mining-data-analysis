@@ -27,7 +27,7 @@ class CurrenciesGraphicCardsInfoPreProcessor:
     def preprocess(self):
         print("Preprocessing information per graphic cards and currencies")
 
-        info = []
+        info_all = []
 
         for graphic_card in self.graphic_cards:
             for currency in self.currencies:
@@ -39,10 +39,9 @@ class CurrenciesGraphicCardsInfoPreProcessor:
                     current["instant_profit"] = self.__calculate_instant_profit(current["profits_datetime"])
                     current["currency"]       = currency
                     current["graphic_card"]   = graphic_card
-                    if(not self.only_currency_present_at_start_time or self.__currency_present_at_start_time(current["profits_datetime"]["datetimes"])):
-                        info.append(current)
-
-        return info
+                    info_all.append(current)
+        info_all_currency_present_at_start_time = list(filter(lambda x: not self.only_currency_present_at_start_time or self.__currency_present_at_start_time(x["profits_datetime"]["datetimes"]), info_all))
+        return info_all, info_all_currency_present_at_start_time
 
     def __calculate_total_profit_extrapolated(self, average_profit):
         number_of_time_unit = int((self.end_datetime.timestamp() - self.starting_datetime.timestamp()) / self.time_unit.total_seconds())

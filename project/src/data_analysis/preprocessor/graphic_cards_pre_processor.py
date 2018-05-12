@@ -19,13 +19,13 @@ class GraphicCardsInfoPreProcessor:
         print("Preprocessing information per graphic cards")
         info = []
 
-        present_graphic_cards = list(set([item["graphic_card"] for item in currency_graphic_card_info]))
+        present_graphic_cards = list(set([item["graphic_card"] for item in currency_graphic_card_info[1]]))
         for graphic_card in present_graphic_cards:
             current = {}
-            filtered_list = list(filter(lambda x: x["graphic_card"] == graphic_card, currency_graphic_card_info))
+            filtered_list = list(filter(lambda x: x["graphic_card"] == graphic_card, currency_graphic_card_info[0]))
             current["max_profits_datetime"] = self.__calculate_max_profits_datetime(filtered_list)
             current["total_max_profit"] = self.__calculate_total_max_profit(current["max_profits_datetime"])
-            current["percentage_increase_profit"] = self.__calculate_percentage_increase_profit(currency_graphic_card_info, graphic_card, current["total_max_profit"])
+            current["percentage_increase_profit"] = self.__calculate_percentage_increase_profit(currency_graphic_card_info[1], graphic_card, current["total_max_profit"])
             current["graphic_card"] = graphic_card
             info.append(current)
 
