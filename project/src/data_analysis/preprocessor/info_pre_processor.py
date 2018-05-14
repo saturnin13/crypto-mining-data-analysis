@@ -8,7 +8,7 @@ from src.variables.variables import Variables
 
 class InfoPreProcessor:
     def __init__(self, currencies, graphic_cards, starting_datetime=datetime.datetime(2009, 1, 1), end_datetime=datetime.datetime.now(), fees=0.0,
-                 time_unit=datetime.timedelta(days=1), price_in_kwh=Variables.ELECTRICITY_COST, only_currency_present_at_start_time=False,
+                 time_unit=datetime.timedelta(days=1), comparison_time_unit=datetime.timedelta(days=30), price_in_kwh=Variables.ELECTRICITY_COST, only_currency_present_at_start_time=False,
                  only_graphic_cards_present_at_start_time=False):
         self.currencies = currencies
         self.graphic_cards = graphic_cards
@@ -16,13 +16,14 @@ class InfoPreProcessor:
         self.end_datetime = end_datetime
         self.fees = fees
         self.time_unit = time_unit
+        self.comparison_time_unit = comparison_time_unit
         self.only_currency_present_at_start_time = only_currency_present_at_start_time
         self.only_graphic_cards_present_at_start_time = only_graphic_cards_present_at_start_time
 
         self.currencies_graphic_cars_preprocessor = CurrenciesGraphicCardsInfoPreProcessor(currencies, graphic_cards, starting_datetime, end_datetime,
-                                                                                           fees, time_unit, price_in_kwh, only_currency_present_at_start_time,
+                                                                                           fees, time_unit, comparison_time_unit, price_in_kwh, only_currency_present_at_start_time,
                                                                                            only_graphic_cards_present_at_start_time)
-        self.currencies_preprocessor = GraphicCardsInfoPreProcessor(currencies, graphic_cards, starting_datetime, end_datetime, fees, time_unit)
+        self.currencies_preprocessor = GraphicCardsInfoPreProcessor(currencies, graphic_cards, starting_datetime, end_datetime, fees, time_unit, comparison_time_unit)
         self.general_preprocessor = GeneralInfoPreProcessor(currencies, graphic_cards, starting_datetime, end_datetime, fees, time_unit)
 
     def currencies_graphic_cards_pre_process(self):

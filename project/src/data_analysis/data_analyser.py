@@ -8,9 +8,9 @@ from src.variables.variables import Variables
 class DataAnalyser:
 
     def __init__(self, currencies, graphic_cards, starting_datetime=datetime.datetime(2009, 1, 1), end_datetime=datetime.datetime.now(),
-                 fees=0.0, time_unit=datetime.timedelta(days=1), price_in_kwh=Variables.ELECTRICITY_COST, only_currency_present_at_start_time=False,
+                 fees=0.0, time_unit=datetime.timedelta(days=1), comparison_time_unit=datetime.timedelta(days=30), price_in_kwh=Variables.ELECTRICITY_COST, only_currency_present_at_start_time=False,
                  only_graphic_cards_present_at_start_time=False):
-        self.__check_inputs(starting_datetime, end_datetime)
+        self.__check_inputs(starting_datetime, end_datetime, time_unit, comparison_time_unit)
         self.currencies = self.__convert_to_list(currencies)
         self.graphic_cards = self.__convert_to_list(graphic_cards)
 
@@ -18,14 +18,15 @@ class DataAnalyser:
         self.end_datetime = end_datetime
         self.fees = fees
         self.time_unit = time_unit
+        self.comparison_time_unit = comparison_time_unit
         self.only_currency_present_at_start_time = only_currency_present_at_start_time
 
-        preprocessor = InfoPreProcessor(self.currencies, self.graphic_cards, starting_datetime, end_datetime, fees, time_unit, price_in_kwh, only_currency_present_at_start_time,
-                                        only_graphic_cards_present_at_start_time)
+        preprocessor = InfoPreProcessor(self.currencies, self.graphic_cards, starting_datetime, end_datetime, fees, time_unit, comparison_time_unit, price_in_kwh,
+                                        only_currency_present_at_start_time, only_graphic_cards_present_at_start_time)
         all_currencies_graphic_cards_info = preprocessor.currencies_graphic_cards_pre_process()
-        self.currencies_graphic_cards_info = all_currencies_graphic_cards_info[1] if only_currency_present_at_start_time else all_currencies_graphic_cards_info[0]
-        self.graphic_cards_info = preprocessor.graphic_cards_pre_process(all_currencies_graphic_cards_info)
-        self.general_info = preprocessor.general_pre_process(self.currencies_graphic_cards_info, self.graphic_cards_info)
+        self.currencies_graphic_cards_info = all_currencies_graphic_cards_info[1]
+        self.graphic_cards_info = preprocessor.graphic_cards_pre_process(all_currencies_graphic_cards_info[0])
+        self.general_info = preprocessor.general_pre_process(all_currencies_graphic_cards_info, self.graphic_cards_info)
 
     def load_histogram_percentage_increase_profit_graphic_cards(self):
         sorted_graphic_cards_info = sorted(self.graphic_cards_info, key=lambda x: x["percentage_increase_profit"], reverse=True)
@@ -108,6 +109,8 @@ class DataAnalyser:
         else:
             return item
 
-    def __check_inputs(self, starting_datetime, end_datetime):
+    def __check_inputs(self, starting_datetime, end_datetime, time_unit, comparison_time_unit):
         if(starting_datetime >= end_datetime):
             raise Exception("The starting time should be smaller than the end time")
+        if(time_unit >= comparison_time_unit):
+            raise Exception("The base time unit time should be smaller than the comparison time unit")

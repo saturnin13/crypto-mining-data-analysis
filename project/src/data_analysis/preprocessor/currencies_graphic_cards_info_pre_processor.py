@@ -9,7 +9,7 @@ from src.variables.variables import Variables
 
 class CurrenciesGraphicCardsInfoPreProcessor:
     def __init__(self, currencies, graphic_cards, starting_datetime=datetime.datetime(2009, 1, 1), end_datetime=datetime.datetime.now(), fees=0.0,
-                 time_unit=datetime.timedelta(days=1), price_in_kwh=Variables.ELECTRICITY_COST, only_currency_present_at_start_time=False,
+                 time_unit=datetime.timedelta(days=1), comparison_time_unit=datetime.timedelta(days=30), price_in_kwh=Variables.ELECTRICITY_COST, only_currency_present_at_start_time=False,
                  only_graphic_cards_present_at_start_time=False):
         self.cache = {}
 
@@ -19,6 +19,7 @@ class CurrenciesGraphicCardsInfoPreProcessor:
         self.end_datetime = end_datetime
         self.fees = fees
         self.time_unit = time_unit
+        self.comparison_time_unit = comparison_time_unit
         self.only_currency_present_at_start_time = only_currency_present_at_start_time
         self.only_graphic_cards_present_at_start_time = only_graphic_cards_present_at_start_time
 
@@ -32,19 +33,22 @@ class CurrenciesGraphicCardsInfoPreProcessor:
         for graphic_card in self.graphic_cards:
             for currency in self.currencies:
                 current = {}
-                current["profits_datetime"] = self.__calculate_profits_datetime(currency, graphic_card)
-                if(current["profits_datetime"]):
+                current["profits_datetime"] = self.__calculate_profits_datetime(currency, graphic_card, self.time_unit)
+                current["profits_datetime_comparison_time_unit"] = self.__calculate_profits_datetime(currency, graphic_card, self.comparison_time_unit)
+                if(current["profits_datetime"] and current["profits_datetime"]["profits"]):
                     current["average_profit"] = self.__calculate_average_profit(current["profits_datetime"]["profits"])
-                    current["total_profit_extrapolated"] = self.__calculate_total_profit_extrapolated(current["average_profit"])
+                    current["total_profit_extrapolated"] = self.__calculate_total_profit_extrapolated(current["average_profit"], self.time_unit)
                     current["instant_profit"] = self.__calculate_instant_profit(current["profits_datetime"])
+
                     current["currency"]       = currency
                     current["graphic_card"]   = graphic_card
+
                     info_all.append(current)
-        info_all_currency_present_at_start_time = list(filter(lambda x: not self.only_currency_present_at_start_time or self.__currency_present_at_start_time(x["profits_datetime"]["datetimes"]), info_all))
+        info_all_currency_present_at_start_time = list(filter(lambda x: not self.only_currency_present_at_start_time or self.__currency_present_at_start_time(x["currency"]), info_all))
         return info_all, info_all_currency_present_at_start_time
 
-    def __calculate_total_profit_extrapolated(self, average_profit):
-        number_of_time_unit = int((self.end_datetime.timestamp() - self.starting_datetime.timestamp()) / self.time_unit.total_seconds())
+    def __calculate_total_profit_extrapolated(self, average_profit, time_unit):
+        number_of_time_unit = int((self.end_datetime.timestamp() - self.starting_datetime.timestamp()) / time_unit.total_seconds())
         return average_profit * number_of_time_unit
 
     def __calculate_instant_profit(self, profits_datetime):
@@ -55,30 +59,44 @@ class CurrenciesGraphicCardsInfoPreProcessor:
     def __calculate_average_profit(self, profits):
         return sum(profits) / len(profits)
 
-    def __calculate_profits_datetime(self, currency, graphic_card):
+    def __calculate_profits_datetime(self, currency, graphic_card, time_unit):
         currency_historical_data = self.__get_currency_historical_data(currency)
-        currency_historical_data = list(filter(lambda x: x["datetime"] and x["datetime"] >= self.starting_datetime and x["datetime"] <= self.end_datetime, currency_historical_data))
+        currency_historical_data = list(filter(lambda x: x["datetime"] and x["datetime"] >= self.starting_datetime and x["datetime"] <= self.end_datetime
+                                                         and x["revenue_per_second_per_hashrate_in_dollar"], currency_historical_data))
         currency_historical_data = sorted(currency_historical_data, key=lambda x: x["datetime"])
 
         cost_per_hashrate_per_second_in_dollar, hashrate = self.__get_cost_and_hashrate(currency.get_algorithm().value, graphic_card.value)
         if(not cost_per_hashrate_per_second_in_dollar or not hashrate):
             return None
 
-        profits = []
-        date_time_values = []
-        last_date_time = datetime.datetime(500, 1, 1)
-        for row in currency_historical_data:
-            revenue_per_hashrate_per_second_in_dollar = row["revenue_per_second_per_hashrate_in_dollar"]
-            new_date_time = row["datetime"]
-            if(revenue_per_hashrate_per_second_in_dollar is None or last_date_time is None or new_date_time < last_date_time + self.time_unit):
-                continue
-            last_date_time = Utils.truncate_datetime_limit(self.time_unit, new_date_time)
-            profit = ProfitCalculation.calculate_profit(revenue_per_hashrate_per_second_in_dollar, cost_per_hashrate_per_second_in_dollar, hashrate, self.time_unit, self.fees)
-            profits.append(profit)
-            date_time_values.append(last_date_time)
+        profits, date_time_values = self.__calculate_profits_datetime_helper(currency_historical_data, cost_per_hashrate_per_second_in_dollar, hashrate, time_unit)
         profits_datetime = {"profits": profits, "datetimes": date_time_values}
 
         return profits_datetime
+
+    def __calculate_profits_datetime_helper(self, currency_historical_data, cost_per_hashrate_per_second_in_dollar, hashrate, time_unit):
+        profits = []
+        date_time_values = []
+        current_sum_revenue, revenue_count = 0, 0
+        datetime_lower_limit = self.starting_datetime
+        while(datetime_lower_limit < currency_historical_data[0]["datetime"]):
+            datetime_lower_limit += time_unit
+        for i in range(len(currency_historical_data)):
+            revenue_per_hashrate_per_second_in_dollar = currency_historical_data[i]["revenue_per_second_per_hashrate_in_dollar"]
+            new_date_time = currency_historical_data[i]["datetime"]
+            if (revenue_per_hashrate_per_second_in_dollar is None or new_date_time is None or new_date_time < datetime_lower_limit):
+                continue
+            if (new_date_time >= datetime_lower_limit + time_unit):
+                if(revenue_count != 0):
+                    profit = ProfitCalculation.calculate_profit(current_sum_revenue / revenue_count, cost_per_hashrate_per_second_in_dollar, hashrate,
+                                                                time_unit, self.fees)
+                    profits.append(profit)
+                    date_time_values.append(datetime_lower_limit)
+                datetime_lower_limit += time_unit
+                current_sum_revenue, revenue_count = 0, 0
+            current_sum_revenue += revenue_per_hashrate_per_second_in_dollar
+            revenue_count += 1
+        return profits, date_time_values
 
     def __get_cost_and_hashrate(self, algorithm_string, graphic_card_string):
         graphic_card_data = self.__get_graphic_card_data(algorithm_string, graphic_card_string)
@@ -104,8 +122,9 @@ class CurrenciesGraphicCardsInfoPreProcessor:
             self.cache[(currency)] = DatabaseAccessor.get_currency_historical_data(currency)
         return self.cache[(currency)]
 
-    def __currency_present_at_start_time(self, datetimes):
-        return min(datetimes) <= self.starting_datetime
+    def __currency_present_at_start_time(self, currency):
+        currency_historical_data = [item["datetime"] for item in self.__get_currency_historical_data(currency)]
+        return min(currency_historical_data) <= self.starting_datetime
 
     def __graphic_card_present_at_start_time(self, graphic_card_data):
         return graphic_card_data["release_date"] <= self.starting_datetime

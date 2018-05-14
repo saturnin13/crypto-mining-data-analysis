@@ -15,8 +15,8 @@ class GeneralInfoPreProcessor:
         print("Preprocessing general information")
 
         info = {}
-        info["present_currencies"] = self.__calculate_present_currencies(currency_graphic_card_info)
-        info["present_graphic_cards"] = self.__calculate_present_graphic_cards(currency_graphic_card_info)
+        info["present_currencies"] = self.__calculate_present_currencies(currency_graphic_card_info[1])
+        info["present_graphic_cards"] = self.__calculate_present_graphic_cards(currency_graphic_card_info[1])
 
         if(not info["present_currencies"]):
             raise Exception("No currencies present")
