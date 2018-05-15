@@ -12,7 +12,7 @@ class CurrenciesDatabaseInteractions:
         self.database_cleaner = CurrencyHistoricalDataDatabaseCleaner()
 
     def update_all(self):
-        self.update(Currencies.BTX)
+        self.update([item for item in Currencies])
 
     def update(self, currencies, time_delta=datetime.timedelta(days=1)):
         if (type(currencies) != list):

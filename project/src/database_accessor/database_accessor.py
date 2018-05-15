@@ -101,7 +101,7 @@ class DatabaseAccessor:
         try:
             DatabaseAccessor.__alter_table(str(currency) + "_historical_data", "USD_per_GRS", "USD_per_" + str(currency))
         except psycopg2.ProgrammingError as error:
-            if(str(error) != "column \"usd_per_grs\" does not exist\n"):
+            if(str(error) != "column \"usd_per_grs\" does not exist\n" and str(error) != "column \"usd_per_grs\" of relation \"GRS_historical_data\" already exists\n"):
                 raise error
 
 
