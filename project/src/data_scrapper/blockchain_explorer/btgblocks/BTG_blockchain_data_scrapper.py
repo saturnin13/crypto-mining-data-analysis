@@ -15,7 +15,7 @@ class BTGBlockchainDataScrapper(GenericBlockchainDataScrapper):
         return [reward_regex_pattern, difficulty_regex_pattern, datetime_regex_pattern]
 
     def _get_primary_url(self, id):
-        return "https://explorer.bitcoingold.org/insight-api/block/" + self.__block_hash_value
+        return "https://explorer.bitcoingold.org/insight-api/block/" + str(self.__block_hash_value)
 
     def _pre_processing_page_loading(self, id):
         self.__block_hash_value = self.http.get_request("https://www.btgblocks.com/api/getblockhash?index=" + str(id["block_number"]))

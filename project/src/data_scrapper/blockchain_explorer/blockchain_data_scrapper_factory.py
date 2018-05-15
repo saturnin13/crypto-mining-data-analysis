@@ -10,8 +10,9 @@ from src.data_scrapper.blockchain_explorer.minergate.QCN_blockchain_data_scrappe
 from src.data_scrapper.blockchain_explorer.minergate.XMR_blockchain_data_scrapper import XMRBlockchainDataScrapper
 from src.data_scrapper.blockchain_explorer.minergate.ZEC_blockchain_data_scrapper import ZECBlockchainDataScrapper
 from src.data_scrapper.blockchain_explorer.ubiqscan.UBQ_blockchain_data_scrapper import UBQBlockchainDataScrapper
-from src.data_scrapper.blockchain_explorer.zclmine_btcpprivate.BTCP_blockchain_data_scrapper import BTCPBlockchainDataScrapper
-from src.data_scrapper.blockchain_explorer.zclmine_btcpprivate.ZCL_blockchain_data_scrapper import ZCLBlockchainDataScrapper
+from src.data_scrapper.blockchain_explorer.zclmine_btcpprivate_bitcoincore.BTCP_blockchain_data_scrapper import BTCPBlockchainDataScrapper
+from src.data_scrapper.blockchain_explorer.zclmine_btcpprivate_bitcoincore.BTX_blockchain_data_scrapper import BTXBlockchainDataScrapper
+from src.data_scrapper.blockchain_explorer.zclmine_btcpprivate_bitcoincore.ZCL_blockchain_data_scrapper import ZCLBlockchainDataScrapper
 
 
 class BlockChainDataScrapperFactory:
@@ -45,3 +46,5 @@ class BlockChainDataScrapperFactory:
             return ZCLBlockchainDataScrapper()
         elif (currency == Currencies.BTCP):
             return BTCPBlockchainDataScrapper()
+        elif (currency == Currencies.BTX):
+            return BTXBlockchainDataScrapper()

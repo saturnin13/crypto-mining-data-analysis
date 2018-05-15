@@ -7,6 +7,8 @@ from src.regex.regex_pattern_matching import RegexPatternMatching
 
 class BTCPBlockchainDataScrapper(GenericBlockchainDataScrapper):
 
+    __block_hash_value = ""
+
     def _get_regex_patterns(self, id):
         datetime_regex_pattern = ",\"time\":(?P<datetime>" + ConstantRegex.NUMBER + "),\""
         difficulty_regex_pattern = "\",\"difficulty\":(?P<difficulty>" + ConstantRegex.NUMBER + "),\""
@@ -14,13 +16,10 @@ class BTCPBlockchainDataScrapper(GenericBlockchainDataScrapper):
         return [reward_regex_pattern, difficulty_regex_pattern, datetime_regex_pattern]
 
     def _get_primary_url(self, id):
-        return "https://explorer.btcprivate.org/api/block-index/" + str(id["block_number"])
+        return "https://explorer.btcprivate.org/api/block/" + str(self.__block_hash_value)
 
-    def _get_auxiliary_urls(self, primary_content, id):
-        hash = self.__find_hash(primary_content)
-        if (hash == None):
-            return None
-        return ["https://explorer.btcprivate.org/api/block/" + hash]
+    def _pre_processing_page_loading(self, id):
+        self.__block_hash_value = self.__find_hash(self.http.get_request("https://explorer.btcprivate.org/api/block-index/" + str(id["block_number"])))
 
     def _post_processing_single_result(self, id, result):
         result = super()._post_processing_single_result(id, result)

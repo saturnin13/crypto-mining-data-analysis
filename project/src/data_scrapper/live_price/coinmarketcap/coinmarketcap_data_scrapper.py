@@ -43,5 +43,7 @@ class CoinmarketcapDataScrapper(GenericLiveDataScrapper):
             return 1447
         elif(currency == Currencies.BTCP):
             return 2575
+        elif(currency == Currencies.BTX):
+            return 1654
         else:
             raise Exception("No id for coinmarketcap for currency: " + str(currency))

@@ -12,12 +12,13 @@ class CurrenciesDatabaseInteractions:
         self.database_cleaner = CurrencyHistoricalDataDatabaseCleaner()
 
     def update_all(self):
-        self.update([item for item in Currencies])
+        self.update(Currencies.BTX)
 
     def update(self, currencies, time_delta=datetime.timedelta(days=1)):
         if (type(currencies) != list):
             currencies = [currencies]
         for currency in currencies:
+            DatabaseAccessor.create_historical_data_table_currency(currency)
             most_recent_valid_row = DatabaseAccessor.get_most_recent_valid_row_currency_database(currency)
             if(most_recent_valid_row):
                 self.__load_helper(currency, time_delta=time_delta, block_number=most_recent_valid_row["block_number"], datetime_lower_limit_value=most_recent_valid_row["datetime"])
@@ -34,6 +35,7 @@ class CurrenciesDatabaseInteractions:
         if(type(currencies) != list):
             currencies = [currencies]
         for currency in currencies:
+            DatabaseAccessor.create_historical_data_table_currency(currency)
             self.__load_helper(currency, time_delta=time_delta)
 
     def __load_helper(self, currency, time_delta=datetime.timedelta(days=1), block_number=1, datetime_lower_limit_value=None):

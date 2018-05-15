@@ -2,6 +2,7 @@ from src.currencies.currencies import Currencies
 from src.data_scrapper.exchange_rate.coinmarketcap.BCN_exchange_rate_data_scrapper import BCNExchangeRateDataScrapper
 from src.data_scrapper.exchange_rate.coinmarketcap.BTCP_exchange_rate_data_scrapper import BTCPExchangeRateDataScrapper
 from src.data_scrapper.exchange_rate.coinmarketcap.BTG_exchange_rate_data_scrapper import BTGExchangeRateDataScrapper
+from src.data_scrapper.exchange_rate.coinmarketcap.BTX_exchange_rate_data_scrapper import BTXExchangeRateDataScrapper
 from src.data_scrapper.exchange_rate.coinmarketcap.ETC_exchange_rate_data_scrapper import ETCExchangeRateDataScrapper
 from src.data_scrapper.exchange_rate.coinmarketcap.ETH_exchange_rate_data_scrapper import ETHExchangeRateDataScrapper
 from src.data_scrapper.exchange_rate.coinmarketcap.EXP_exchange_rate_data_scrapper import EXPExchangeRateDataScrapper
@@ -42,4 +43,6 @@ class ExchangeRateDataScrapperFactory:
             return ZCLExchangeRateDataScrapper()
         elif (currency == Currencies.BTCP):
             return BTCPExchangeRateDataScrapper()
+        elif (currency == Currencies.BTX):
+            return BTXExchangeRateDataScrapper()
 

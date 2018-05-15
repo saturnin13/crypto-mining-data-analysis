@@ -94,13 +94,29 @@ class DatabaseAccessor:
         print("Updating graphic_card (" + str(graphic_card) + ") with release date (" + str(release_date) + ")")
         DatabaseAccessor.__update_request("gpu_statistics", ["release_date"], [release_date], DatabaseAccessor.__convert_where_clause(["graphic_card"], [str(graphic_card)]))
 
+    @staticmethod
+    def create_historical_data_table_currency(currency):
+        print("Create historical data table for currency " + str(currency))
+        DatabaseAccessor.__create_table(str(currency) + "_historical_data", "LIKE \"GRS_historical_data\" INCLUDING DEFAULTS INCLUDING CONSTRAINTS INCLUDING INDEXES")
+        try:
+            DatabaseAccessor.__alter_table(str(currency) + "_historical_data", "USD_per_GRS", "USD_per_" + str(currency))
+        except psycopg2.ProgrammingError as error:
+            if(str(error) != "column \"usd_per_grs\" does not exist\n"):
+                raise error
 
+
+    @staticmethod
+    def __alter_table(table_name, replaced_col, replacing_col):
+        with closing(DatabaseAccessor.__get_connection()) as conn:
+            with conn, conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curr:
+                curr.execute("ALTER TABLE \"" + table_name + "\" RENAME " + replaced_col + " TO " + replacing_col)
+                conn.commit()
 
     @staticmethod
     def __create_table(table_name, col_names):
         with closing(DatabaseAccessor.__get_connection()) as conn:
             with conn, conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curr:
-                curr.execute("CREATE TABLE \"" + table_name + "\"(" + col_names + ")")
+                curr.execute("CREATE TABLE IF NOT EXISTS \"" + table_name + "\"(" + col_names + ")")
                 conn.commit()
 
     @staticmethod
@@ -183,13 +199,13 @@ class DatabaseAccessor:
             result += apostrophe + current + apostrophe
         return result
 
+
     @staticmethod
     def __get_connection():
         try:
             return psycopg2.connect("postgres://lmxhpacdmmgnfr:0f78fab407cdf1699b50b2fec55a742f65ab1a5cfbbb2c166394a09eb6acf652@ec2-54-247-89-189.eu-west-1.compute.amazonaws.com:5432/denvqvnkc5gm9j")
         except:
             raise Exception("Unable to connect to the database")
-
 
     @staticmethod
     def __historical_data_table_name(currency):
