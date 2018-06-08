@@ -9,8 +9,8 @@ from src.variables.variables import Variables
 
 class CurrenciesGraphicCardsInfoPreProcessor:
     def __init__(self, currencies, graphic_cards, starting_datetime=datetime.datetime(2009, 1, 1), end_datetime=datetime.datetime.now(), fees=0.0,
-                 time_unit=datetime.timedelta(days=1), comparison_time_unit=datetime.timedelta(days=30), price_in_kwh=Variables.ELECTRICITY_COST, only_currency_present_at_start_time=False,
-                 only_graphic_cards_present_at_start_time=False):
+                 time_unit=datetime.timedelta(days=1), comparison_time_unit=datetime.timedelta(days=30), all_time_unit=[], electricity_cost=Variables.ELECTRICITY_COST, comparison_electricity_cost=Variables.ELECTRICITY_COST,
+                 all_electricity_costs=[], only_currency_present_at_start_time=False, only_graphic_cards_present_at_start_time=False):
         self.cache = {}
 
         self.currencies = currencies
@@ -20,10 +20,13 @@ class CurrenciesGraphicCardsInfoPreProcessor:
         self.fees = fees
         self.time_unit = time_unit
         self.comparison_time_unit = comparison_time_unit
+        self.all_time_unit = all_time_unit
         self.only_currency_present_at_start_time = only_currency_present_at_start_time
         self.only_graphic_cards_present_at_start_time = only_graphic_cards_present_at_start_time
 
-        self.price_in_kwh = price_in_kwh
+        self.electricity_cost = electricity_cost
+        self.comparison_electricity_cost = comparison_electricity_cost
+        self.all_electricity_costs = all_electricity_costs
 
     def preprocess(self):
         print("Preprocessing information per graphic cards and currencies")
@@ -32,9 +35,14 @@ class CurrenciesGraphicCardsInfoPreProcessor:
 
         for graphic_card in self.graphic_cards:
             for currency in self.currencies:
+                print("Preprocessing information for " + str(graphic_card) + " and " + str(currency))
                 current = {}
-                current["profits_datetime"] = self.__calculate_profits_datetime(currency, graphic_card, self.time_unit)
-                current["profits_datetime_comparison_time_unit"] = self.__calculate_profits_datetime(currency, graphic_card, self.comparison_time_unit)
+                current["all_electricity_cost_profits_datetime"] = self.__calculate_all_electricity_cost_profits_datetime(currency, graphic_card, [self.time_unit], self.all_electricity_costs)
+                current["all_time_unit_profits_datetime"] = self.__calculate_all_electricity_cost_profits_datetime(currency, graphic_card, self.all_time_unit, [self.electricity_cost])
+
+                current["profits_datetime"] = self.__calculate_profits_datetime(currency, graphic_card, self.time_unit, self.electricity_cost)
+                current["profits_datetime_comparison_electricity_cost"] = self.__calculate_profits_datetime(currency, graphic_card, self.time_unit, self.comparison_electricity_cost)
+                current["profits_datetime_comparison_time_unit"] = self.__calculate_profits_datetime(currency, graphic_card, self.comparison_time_unit, self.electricity_cost)
                 if(current["profits_datetime"] and current["profits_datetime"]["profits"]):
                     current["average_profit"] = self.__calculate_average_profit(current["profits_datetime"]["profits"])
                     current["total_profit_extrapolated"] = self.__calculate_total_profit_extrapolated(current["average_profit"], self.time_unit)
@@ -47,6 +55,13 @@ class CurrenciesGraphicCardsInfoPreProcessor:
         info_all_currency_present_at_start_time = list(filter(lambda x: not self.only_currency_present_at_start_time or self.__currency_present_at_start_time(x["currency"]), info_all))
         return info_all, info_all_currency_present_at_start_time
 
+    def __calculate_all_electricity_cost_profits_datetime(self, currency, graphic_card, all_time_unit, all_electricity_costs):
+        result = []
+        for electricity_cost in all_electricity_costs:
+            for time_unit in all_time_unit:
+                result.append(self.__calculate_profits_datetime(currency, graphic_card, time_unit, electricity_cost))
+        return result
+
     def __calculate_total_profit_extrapolated(self, average_profit, time_unit):
         number_of_time_unit = int((self.end_datetime.timestamp() - self.starting_datetime.timestamp()) / time_unit.total_seconds())
         return average_profit * number_of_time_unit
@@ -57,15 +72,15 @@ class CurrenciesGraphicCardsInfoPreProcessor:
         return profits_datetime["profits"][index]
 
     def __calculate_average_profit(self, profits):
-        return sum(profits) / len(profits)
+        return sum(profits) / len(profits) / self.time_unit.days
 
-    def __calculate_profits_datetime(self, currency, graphic_card, time_unit):
+    def __calculate_profits_datetime(self, currency, graphic_card, time_unit, electricity_cost):
         currency_historical_data = self.__get_currency_historical_data(currency)
         currency_historical_data = list(filter(lambda x: x["datetime"] and x["datetime"] >= self.starting_datetime and x["datetime"] <= self.end_datetime
                                                          and x["revenue_per_second_per_hashrate_in_dollar"], currency_historical_data))
         currency_historical_data = sorted(currency_historical_data, key=lambda x: x["datetime"])
 
-        cost_per_hashrate_per_second_in_dollar, hashrate = self.__get_cost_and_hashrate(currency.get_algorithm().value, graphic_card.value)
+        cost_per_hashrate_per_second_in_dollar, hashrate = self.__get_cost_and_hashrate(currency.get_algorithm().value, graphic_card.value, electricity_cost)
         if(not cost_per_hashrate_per_second_in_dollar or not hashrate):
             return None
 
@@ -75,17 +90,27 @@ class CurrenciesGraphicCardsInfoPreProcessor:
         return profits_datetime
 
     def __calculate_profits_datetime_helper(self, currency_historical_data, cost_per_hashrate_per_second_in_dollar, hashrate, time_unit):
+        if(not currency_historical_data):
+            return None, None
         profits = []
         date_time_values = []
         current_sum_revenue, revenue_count = 0, 0
         datetime_lower_limit = self.starting_datetime
         while(datetime_lower_limit < currency_historical_data[0]["datetime"]):
             datetime_lower_limit += time_unit
+        # TODO: check the commented code to correct the logic of this function
+        # datetime_lower_limit -= time_unit
         for i in range(len(currency_historical_data)):
             revenue_per_hashrate_per_second_in_dollar = currency_historical_data[i]["revenue_per_second_per_hashrate_in_dollar"]
             new_date_time = currency_historical_data[i]["datetime"]
+            # if (revenue_per_hashrate_per_second_in_dollar is None or new_date_time is None):
             if (revenue_per_hashrate_per_second_in_dollar is None or new_date_time is None or new_date_time < datetime_lower_limit):
                 continue
+            # if (new_date_time >= datetime_lower_limit + 2 * time_unit):
+            #     datetime_lower_limit += time_unit * int((new_date_time - datetime_lower_limit) / time_unit)
+            #     continue
+            # current_sum_revenue += revenue_per_hashrate_per_second_in_dollar
+            # revenue_count += 1
             if (new_date_time >= datetime_lower_limit + time_unit):
                 if(revenue_count != 0):
                     profit = ProfitCalculation.calculate_profit(current_sum_revenue / revenue_count, cost_per_hashrate_per_second_in_dollar, hashrate,
@@ -98,11 +123,11 @@ class CurrenciesGraphicCardsInfoPreProcessor:
             revenue_count += 1
         return profits, date_time_values
 
-    def __get_cost_and_hashrate(self, algorithm_string, graphic_card_string):
+    def __get_cost_and_hashrate(self, algorithm_string, graphic_card_string, electricity_cost):
         graphic_card_data = self.__get_graphic_card_data(algorithm_string, graphic_card_string)
         if (not graphic_card_data):
             return (None, None)
-        cost_per_hashrate_per_second_in_dollar = graphic_card_data[0]["cost_per_second_per_hashrate_per_pricekwh_in_dollar"] * self.price_in_kwh
+        cost_per_hashrate_per_second_in_dollar = graphic_card_data[0]["cost_per_second_per_hashrate_per_pricekwh_in_dollar"] * electricity_cost
         hashrate = graphic_card_data[0]["hashrate"]
         return (cost_per_hashrate_per_second_in_dollar, hashrate)
 

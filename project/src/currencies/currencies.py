@@ -4,20 +4,22 @@ from src.currencies.algorithms import Algorithms
 
 
 class Currencies(Enum):
-    GRS = "GRS"
-    ETH = "ETH"
-    XMR = "XMR"
-    ETC = "ETC"
-    BCN = "BCN"
-    FCN = "FCN"
+
     QCN = "QCN"
-    BTG = "BTG"
-    EXP = "EXP"
-    UBQ = "UBQ"
-    ZEC = "ZEC"
-    ZCL = "ZCL"
+    FCN = "FCN"
+    BCN = "BCN"
+
+    GRS = "GRS"
     BTCP = "BTCP"
+    ZCL = "ZCL"
+    UBQ = "UBQ"
+    EXP = "EXP"
+    ETC = "ETC"
+    XMR = "XMR"
     BTX = "BTX"
+    ETH = "ETH"
+    BTG = "BTG"
+    ZEC = "ZEC"
 
     def get_algorithm(self):
         if(self == Currencies.GRS):

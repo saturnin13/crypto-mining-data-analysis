@@ -12,7 +12,7 @@ from src.utils.utils import Utils
 class CurrencyHistoricalDataDatabaseFilling:
 
     def fill_in_database_for_currency(self, currency, time_delta=datetime.timedelta(hours=1), block_number=1, datetime_lower_limit_value=None):
-        self.__fill_in_blockchain_data(currency, time_delta, block_number)
+        self.data_analysis_module__third_parties(currency, time_delta, block_number)
         self.__fill_in_exchange_rate_data(currency, time_delta, datetime_lower_limit_value=datetime_lower_limit_value)
         self.__fill_in_revenue_data(currency, datetime_lower_limit_value=datetime_lower_limit_value)
 
